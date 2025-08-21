@@ -8,12 +8,12 @@ interface VirtualTryOnProps {
   onClose: () => void;
 }
 
-// Minimal typing for dynamically loaded FaceMesh
+// Typing for dynamically loaded FaceMesh
 interface FaceMeshType {
   new (options: { locateFile: (file: string) => string }): {
     setOptions(options: any): void;
     onResults(callback: (results: FaceMeshResults) => void): void;
-    send({ image }: { image: HTMLVideoElement }): Promise<void>;
+    send({ image }: { image: HTMLVideoElement | HTMLCanvasElement }): Promise<void>;
   };
 }
 
@@ -38,7 +38,6 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load external script
   const loadScript = (src: string) =>
     new Promise<void>((resolve, reject) => {
       if (document.querySelector(`script[src="${src}"]`)) return resolve();
@@ -68,25 +67,20 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
       try {
         setLoading(true);
 
-        // Load FaceMesh
-        await loadScript(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"
-        );
+        await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js");
 
-        // @ts-expect-error dynamically loaded FaceMesh
-        let FaceMeshClass = (window as any).FaceMesh as FaceMeshType | undefined;
+        // Typed access to window.FaceMesh
+        let FaceMeshClass = (window as unknown as { FaceMesh?: FaceMeshType }).FaceMesh;
 
         let retries = 5;
         while (!FaceMeshClass && retries > 0) {
           await new Promise((res) => setTimeout(res, 200));
-          // @ts-expect-error dynamically loaded FaceMesh
-          FaceMeshClass = (window as any).FaceMesh as FaceMeshType | undefined;
+          FaceMeshClass = (window as unknown as { FaceMesh?: FaceMeshType }).FaceMesh;
           retries--;
         }
 
         if (!FaceMeshClass) throw new Error("FaceMesh not available");
 
-        // Load frame image
         const frameImg = new Image();
         frameImg.crossOrigin = "anonymous";
         frameImg.src = frameSrc;
@@ -146,8 +140,7 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
             const faceHeight = Math.abs(chin.y * h - eyeCenterY);
             const faceWidth = Math.abs((rightCheek.x - leftCheek.x) * w);
 
-            let frameWidth = eyeDistance * 2.2;
-            frameWidth = Math.min(frameWidth, faceWidth * 1.05);
+            let frameWidth = Math.min(eyeDistance * 2.2, faceWidth * 1.05);
             const frameHeight = faceHeight * 0.55;
 
             const angle = Math.atan2(dy, dx);
@@ -210,13 +203,13 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
                   stopCameraAndAnimation();
                   onClose();
                 }}
-              ></button>
+              />
             </div>
             <div className="modal-body text-center">
               {loading && !error && <div className="vt-loading">Starting camera…</div>}
               {error && <div className="alert alert-danger">{error}</div>}
 
-              <video ref={videoRef} className="d-none" playsInline muted></video>
+              <video ref={videoRef} className="d-none" playsInline muted />
               <canvas ref={canvasRef} className="vt-canvas border rounded" />
 
               <div className="mt-3">
