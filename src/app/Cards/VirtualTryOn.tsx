@@ -8,6 +8,26 @@ interface VirtualTryOnProps {
   onClose: () => void;
 }
 
+// Minimal typing for dynamically loaded FaceMesh
+interface FaceMeshType {
+  new (options: { locateFile: (file: string) => string }): {
+    setOptions(options: any): void;
+    onResults(callback: (results: FaceMeshResults) => void): void;
+    send({ image }: { image: HTMLVideoElement }): Promise<void>;
+  };
+}
+
+interface FaceLandmark {
+  x: number;
+  y: number;
+  z?: number;
+}
+
+interface FaceMeshResults {
+  image: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement;
+  multiFaceLandmarks?: FaceLandmark[][];
+}
+
 export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -30,7 +50,6 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
       document.body.appendChild(s);
     });
 
-  // Stop camera and animation
   const stopCameraAndAnimation = () => {
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
@@ -50,17 +69,21 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
         setLoading(true);
 
         // Load FaceMesh
-        await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js");
+        await loadScript(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"
+        );
 
-        // @ts-ignore
-        let FaceMeshClass: any = (window as any).FaceMesh;
+        // @ts-expect-error dynamically loaded FaceMesh
+        let FaceMeshClass = (window as any).FaceMesh as FaceMeshType | undefined;
+
         let retries = 5;
         while (!FaceMeshClass && retries > 0) {
           await new Promise((res) => setTimeout(res, 200));
-          // @ts-ignore
-          FaceMeshClass = (window as any).FaceMesh;
+          // @ts-expect-error dynamically loaded FaceMesh
+          FaceMeshClass = (window as any).FaceMesh as FaceMeshType | undefined;
           retries--;
         }
+
         if (!FaceMeshClass) throw new Error("FaceMesh not available");
 
         // Load frame image
@@ -75,7 +98,6 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
         canvas.width = 640;
         canvas.height = 480;
 
-        // Init FaceMesh
         const faceMesh = new FaceMeshClass({
           locateFile: (file: string) =>
             `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
@@ -88,7 +110,6 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
           minTrackingConfidence: 0.6,
         });
 
-        // Setup camera
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "user" },
         });
@@ -98,13 +119,6 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
         video.autoplay = true;
         video.muted = true;
         await video.play();
-
-        // FaceMesh results
-        interface FaceLandmark { x: number; y: number; z?: number }
-        interface FaceMeshResults {
-          image: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement;
-          multiFaceLandmarks?: FaceLandmark[][];
-        }
 
         faceMesh.onResults((results: FaceMeshResults) => {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -155,7 +169,6 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
           }
         });
 
-        // Animation loop
         const render = async () => {
           if (!mounted) return;
           if (video.readyState >= 2) {
