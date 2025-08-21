@@ -8,7 +8,7 @@ interface VirtualTryOnProps {
   onClose: () => void;
 }
 
-const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
+export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const frameImgRef = useRef<HTMLImageElement | null>(null);
@@ -18,7 +18,7 @@ const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load external script helper
+  // Load external script
   const loadScript = (src: string) =>
     new Promise<void>((resolve, reject) => {
       if (document.querySelector(`script[src="${src}"]`)) return resolve();
@@ -30,7 +30,7 @@ const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
       document.body.appendChild(s);
     });
 
-  // Stop camera and animation immediately
+  // Stop camera and animation
   const stopCameraAndAnimation = () => {
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
@@ -45,20 +45,25 @@ const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
   useEffect(() => {
     let mounted = true;
 
-    const init = async () => {
+    async function init() {
       try {
         setLoading(true);
+
+        // Load FaceMesh
         await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js");
 
-        let FaceMesh: any = (window as any).FaceMesh;
+        // @ts-ignore
+        let FaceMeshClass: any = (window as any).FaceMesh;
         let retries = 5;
-        while (!FaceMesh && retries > 0) {
+        while (!FaceMeshClass && retries > 0) {
           await new Promise((res) => setTimeout(res, 200));
-          FaceMesh = (window as any).FaceMesh;
+          // @ts-ignore
+          FaceMeshClass = (window as any).FaceMesh;
           retries--;
         }
-        if (!FaceMesh) throw new Error("FaceMesh not available");
+        if (!FaceMeshClass) throw new Error("FaceMesh not available");
 
+        // Load frame image
         const frameImg = new Image();
         frameImg.crossOrigin = "anonymous";
         frameImg.src = frameSrc;
@@ -70,7 +75,8 @@ const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
         canvas.width = 640;
         canvas.height = 480;
 
-        const faceMesh = new FaceMesh({
+        // Init FaceMesh
+        const faceMesh = new FaceMeshClass({
           locateFile: (file: string) =>
             `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
         });
@@ -82,7 +88,10 @@ const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
           minTrackingConfidence: 0.6,
         });
 
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        // Setup camera
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+        });
         streamRef.current = stream;
         video.srcObject = stream;
         video.setAttribute("playsinline", "true");
@@ -90,7 +99,14 @@ const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
         video.muted = true;
         await video.play();
 
-        faceMesh.onResults((results: any) => {
+        // FaceMesh results
+        interface FaceLandmark { x: number; y: number; z?: number }
+        interface FaceMeshResults {
+          image: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement;
+          multiFaceLandmarks?: FaceLandmark[][];
+        }
+
+        faceMesh.onResults((results: FaceMeshResults) => {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
@@ -127,12 +143,19 @@ const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
               ctx.save();
               ctx.translate(eyeCenterX, eyeCenterY);
               ctx.rotate(angle);
-              ctx.drawImage(img, -frameWidth / 2, -frameHeight / 2, frameWidth, frameHeight);
+              ctx.drawImage(
+                img,
+                -frameWidth / 2,
+                -frameHeight / 2,
+                frameWidth,
+                frameHeight
+              );
               ctx.restore();
             }
           }
         });
 
+        // Animation loop
         const render = async () => {
           if (!mounted) return;
           if (video.readyState >= 2) {
@@ -143,12 +166,13 @@ const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
         render();
 
         setLoading(false);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error("VirtualTryOn error:", msg);
+        setError(msg);
         setLoading(false);
       }
-    };
+    }
 
     init();
 
@@ -169,18 +193,27 @@ const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
               <button
                 type="button"
                 className="btn-close"
-                onClick={() => { stopCameraAndAnimation(); onClose(); }}
-              />
+                onClick={() => {
+                  stopCameraAndAnimation();
+                  onClose();
+                }}
+              ></button>
             </div>
             <div className="modal-body text-center">
               {loading && !error && <div className="vt-loading">Starting camera…</div>}
               {error && <div className="alert alert-danger">{error}</div>}
 
-              <video ref={videoRef} className="d-none" playsInline muted />
+              <video ref={videoRef} className="d-none" playsInline muted></video>
               <canvas ref={canvasRef} className="vt-canvas border rounded" />
 
               <div className="mt-3">
-                <button className="btn btn-secondary" onClick={() => { stopCameraAndAnimation(); onClose(); }}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    stopCameraAndAnimation();
+                    onClose();
+                  }}
+                >
                   Close
                 </button>
               </div>
@@ -190,6 +223,4 @@ const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
       </div>
     </>
   );
-};
-
-export default VirtualTryOn;
+}
