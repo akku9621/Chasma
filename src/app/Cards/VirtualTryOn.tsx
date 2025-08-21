@@ -69,17 +69,17 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
 
         await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js");
 
-        // Typed access to window.FaceMesh
-        let FaceMeshClass = (window as unknown as { FaceMesh?: FaceMeshType }).FaceMesh;
+        const FaceMeshClass = (window as unknown as { FaceMesh?: FaceMeshType }).FaceMesh;
 
         let retries = 5;
-        while (!FaceMeshClass && retries > 0) {
+        let faceMeshClassRetry = FaceMeshClass;
+        while (!faceMeshClassRetry && retries > 0) {
           await new Promise((res) => setTimeout(res, 200));
-          FaceMeshClass = (window as unknown as { FaceMesh?: FaceMeshType }).FaceMesh;
+          faceMeshClassRetry = (window as unknown as { FaceMesh?: FaceMeshType }).FaceMesh;
           retries--;
         }
 
-        if (!FaceMeshClass) throw new Error("FaceMesh not available");
+        if (!faceMeshClassRetry) throw new Error("FaceMesh not available");
 
         const frameImg = new Image();
         frameImg.crossOrigin = "anonymous";
@@ -92,7 +92,7 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
         canvas.width = 640;
         canvas.height = 480;
 
-        const faceMesh = new FaceMeshClass({
+        const faceMesh = new faceMeshClassRetry({
           locateFile: (file: string) =>
             `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
         });
@@ -140,7 +140,7 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
             const faceHeight = Math.abs(chin.y * h - eyeCenterY);
             const faceWidth = Math.abs((rightCheek.x - leftCheek.x) * w);
 
-            let frameWidth = Math.min(eyeDistance * 2.2, faceWidth * 1.05);
+            const frameWidth = Math.min(eyeDistance * 2.2, faceWidth * 1.05);
             const frameHeight = faceHeight * 0.55;
 
             const angle = Math.atan2(dy, dx);
@@ -150,13 +150,7 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
               ctx.save();
               ctx.translate(eyeCenterX, eyeCenterY);
               ctx.rotate(angle);
-              ctx.drawImage(
-                img,
-                -frameWidth / 2,
-                -frameHeight / 2,
-                frameWidth,
-                frameHeight
-              );
+              ctx.drawImage(img, -frameWidth / 2, -frameHeight / 2, frameWidth, frameHeight);
               ctx.restore();
             }
           }
@@ -190,7 +184,7 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
 
   return (
     <>
-      <div className="modal-backdrop show"></div>
+      <div className="modal-backdrop show" />
       <div className="modal fade show d-block vt-modal" tabIndex={-1}>
         <div className="modal-dialog modal-xl modal-dialog-centered">
           <div className="modal-content">
