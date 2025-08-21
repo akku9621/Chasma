@@ -3,23 +3,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./virtualtryon.css";
 
-export default function VirtualTryOn({
-  frameSrc,
-  onClose,
-}: {
+interface VirtualTryOnProps {
   frameSrc: string;
   onClose: () => void;
-}) {
+}
+
+const VirtualTryOn: React.FC<VirtualTryOnProps> = ({ frameSrc, onClose }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const frameImgRef = useRef<HTMLImageElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const animationFrameRef = useRef<number | null>(null); // ✅ animation ref
+  const animationFrameRef = useRef<number | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Helper: load external script
+  // Load external script helper
   const loadScript = (src: string) =>
     new Promise<void>((resolve, reject) => {
       if (document.querySelector(`script[src="${src}"]`)) return resolve();
@@ -31,14 +30,12 @@ export default function VirtualTryOn({
       document.body.appendChild(s);
     });
 
-  // ✅ Stop camera and animation immediately
+  // Stop camera and animation immediately
   const stopCameraAndAnimation = () => {
-    // Stop animation
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
     }
-    // Stop camera
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
@@ -48,11 +45,9 @@ export default function VirtualTryOn({
   useEffect(() => {
     let mounted = true;
 
-    async function init() {
+    const init = async () => {
       try {
         setLoading(true);
-
-        // Load FaceMesh script
         await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js");
 
         let FaceMesh: any = (window as any).FaceMesh;
@@ -62,9 +57,8 @@ export default function VirtualTryOn({
           FaceMesh = (window as any).FaceMesh;
           retries--;
         }
-        if (!FaceMesh) throw new Error("FaceMesh not available after script load");
+        if (!FaceMesh) throw new Error("FaceMesh not available");
 
-        // Load frame image
         const frameImg = new Image();
         frameImg.crossOrigin = "anonymous";
         frameImg.src = frameSrc;
@@ -76,11 +70,11 @@ export default function VirtualTryOn({
         canvas.width = 640;
         canvas.height = 480;
 
-        // Init FaceMesh
         const faceMesh = new FaceMesh({
           locateFile: (file: string) =>
             `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
         });
+
         faceMesh.setOptions({
           maxNumFaces: 1,
           refineLandmarks: true,
@@ -88,10 +82,7 @@ export default function VirtualTryOn({
           minTrackingConfidence: 0.6,
         });
 
-        // Setup camera
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
-        });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         streamRef.current = stream;
         video.srcObject = stream;
         video.setAttribute("playsinline", "true");
@@ -99,7 +90,6 @@ export default function VirtualTryOn({
         video.muted = true;
         await video.play();
 
-        // FaceMesh results
         faceMesh.onResults((results: any) => {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
@@ -137,19 +127,12 @@ export default function VirtualTryOn({
               ctx.save();
               ctx.translate(eyeCenterX, eyeCenterY);
               ctx.rotate(angle);
-              ctx.drawImage(
-                img,
-                -frameWidth / 2,
-                -frameHeight / 2,
-                frameWidth,
-                frameHeight
-              );
+              ctx.drawImage(img, -frameWidth / 2, -frameHeight / 2, frameWidth, frameHeight);
               ctx.restore();
             }
           }
         });
 
-        // Loop
         const render = async () => {
           if (!mounted) return;
           if (video.readyState >= 2) {
@@ -161,11 +144,11 @@ export default function VirtualTryOn({
 
         setLoading(false);
       } catch (err: any) {
-        console.error("VirtualTryOn error:", err);
+        console.error(err);
         setError(err.message);
         setLoading(false);
       }
-    }
+    };
 
     init();
 
@@ -186,27 +169,18 @@ export default function VirtualTryOn({
               <button
                 type="button"
                 className="btn-close"
-                onClick={() => {
-                  stopCameraAndAnimation();
-                  onClose();
-                }}
-              ></button>
+                onClick={() => { stopCameraAndAnimation(); onClose(); }}
+              />
             </div>
             <div className="modal-body text-center">
               {loading && !error && <div className="vt-loading">Starting camera…</div>}
               {error && <div className="alert alert-danger">{error}</div>}
 
-              <video ref={videoRef} className="d-none" playsInline muted></video>
+              <video ref={videoRef} className="d-none" playsInline muted />
               <canvas ref={canvasRef} className="vt-canvas border rounded" />
 
               <div className="mt-3">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => {
-                    stopCameraAndAnimation();
-                    onClose();
-                  }}
-                >
+                <button className="btn btn-secondary" onClick={() => { stopCameraAndAnimation(); onClose(); }}>
                   Close
                 </button>
               </div>
@@ -216,4 +190,6 @@ export default function VirtualTryOn({
       </div>
     </>
   );
-}
+};
+
+export default VirtualTryOn;

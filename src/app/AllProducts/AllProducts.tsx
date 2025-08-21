@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 const productImages = [
   "https://images.pexels.com/photos/39716/pexels-photo-39716.jpeg",
@@ -16,13 +17,13 @@ const productImages = [
 const whatsappNumber = '919889716600';
 
 const AllProducts: React.FC = () => {
-  const products = Array.from({length: 100}, (_,i) => {
+  const products = Array.from({length: 100}, (_, i) => {
     const img = productImages[i % productImages.length];
     const model = `Model No: ${i+1}`;
     const price = 499 + ((i+1) % 5) * 110;
     const details = `I am interested in ${model} priced at ₹${price}. Image: ${img}`;
     const waLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(details)}`;
-    return {id:i+1,img,model,price,waLink};
+    return {id: i+1, img, model, price, waLink};
   });
 
   const onThumbClick = (p: any) => {
@@ -43,17 +44,18 @@ const AllProducts: React.FC = () => {
         {products.map(p => (
           <div key={p.id} className="col-6 col-md-3">
             <div className="card product-card h-100 p-2">
-              <img
-                src={p.img}
-                alt={p.model}
-                className="product-img card-img-top"
-                loading="lazy"
-                style={{cursor:'pointer'}}
-                data-bs-toggle="modal"
-                data-bs-target="#productModal"
-                onClick={() => onThumbClick(p)}
-                onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/160x160?text=No+Image'; }}
-              />
+              <div style={{position: 'relative', width: '100%', height: 160, cursor: 'pointer'}}>
+                <Image
+                  src={p.img}
+                  alt={p.model}
+                  fill
+                  style={{objectFit: 'cover'}}
+                  data-bs-toggle="modal"
+                  data-bs-target="#productModal"
+                  onClick={() => onThumbClick(p)}
+                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/160x160?text=No+Image'; }}
+                />
+              </div>
               <div className="card-body text-center">
                 <div className="fw-bold mb-0">{p.model}</div>
                 <div className="price mt-1 mb-2">₹{p.price}</div>

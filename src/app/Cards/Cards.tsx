@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useMemo, useState } from "react";
+import Image from "next/image";
 import "./Cards.css";
-import VirtualTryOn from "./VirtualTryOn"; // same folder
+import VirtualTryOn from "./VirtualTryOn";
 
 interface Product {
   id: number;
-  images: string[]; // product images (first one used as preview; images[0] also used as frame)
+  images: string[];
   price: number;
   size: string;
   description: string;
@@ -18,7 +19,6 @@ interface CardsProps {
 }
 
 const generateProducts = (category: string): Product[] => {
-  // sample product data: you likely already save products in localStorage; this is fallback/demo
   const sampleSets = [
     [
       "https://static.vecteezy.com/system/resources/thumbnails/046/158/728/small/black-eyeglasses-frame-png.png",
@@ -31,10 +31,6 @@ const generateProducts = (category: string): Product[] => {
     [
       "https://static.vecteezy.com/system/resources/thumbnails/027/928/340/small_2x/black-and-red-round-glasses-png.png",
       "https://images.pexels.com/photos/947885/pexels-photo-947885.jpeg",
-    ],
-    [
-      "https://static.vecteezy.com/system/resources/thumbnails/046/158/728/small/black-eyeglasses-frame-png.png",
-      "https://images.pexels.com/photos/33129357/pexels-photo-33129357.jpeg",
     ],
   ];
 
@@ -49,14 +45,12 @@ const generateProducts = (category: string): Product[] => {
 };
 
 const Cards: React.FC<CardsProps> = ({ category }) => {
-  // Try to read real products from localStorage (uploaded by admin). If not present, fallback to sample
   const savedProducts = (typeof window !== "undefined" && localStorage.getItem("products"))
     ? JSON.parse(localStorage.getItem("products") as string)
     : null;
 
   const products: Product[] = useMemo(() => {
     if (savedProducts && Array.isArray(savedProducts) && savedProducts.length > 0) {
-      // Map stored products to the Product type expecting images array: use photo as images[0]
       return savedProducts.map((p: any, idx: number) => ({
         id: p.id ?? (idx + 1),
         images: p.images && Array.isArray(p.images) && p.images.length ? p.images : (p.photo ? [p.photo] : [""]),
@@ -70,14 +64,9 @@ const Cards: React.FC<CardsProps> = ({ category }) => {
   }, [category]);
 
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
-  const [editingProduct, setEditingProduct] = useState<any | null>(null); // if you keep edit modal
   const [showTryOn, setShowTryOn] = useState(false);
 
-  // open product modal is handled by bootstrap attributes; we store active product
-  const openProduct = (p: Product) => {
-    setActiveProduct(p);
-    // product modal will open via data-bs attributes on click in the markup below
-  };
+  const openProduct = (p: Product) => setActiveProduct(p);
 
   return (
     <>
@@ -85,14 +74,17 @@ const Cards: React.FC<CardsProps> = ({ category }) => {
         {products.map((p) => (
           <div key={p.id} className="col-6 col-lg-3">
             <div className="card product-card h-100 p-2">
-              <img
-                src={p.images[0]}
-                alt={p.model}
-                className="product-img card-img-top"
-                data-bs-toggle="modal"
-                data-bs-target="#cardModal"
-                onClick={() => openProduct(p)}
-              />
+              <div style={{ position: 'relative', width: '100%', height: 160, cursor: 'pointer' }}>
+                <Image
+                  src={p.images[0]}
+                  alt={p.model}
+                  fill
+                  style={{ objectFit: 'contain' }}
+                  data-bs-toggle="modal"
+                  data-bs-target="#cardModal"
+                  onClick={() => openProduct(p)}
+                />
+              </div>
               <div className="card-body text-center">
                 <h6 className="fw-bold mb-1">{p.model}</h6>
                 <div className="price">₹{p.price}</div>
@@ -123,22 +115,19 @@ const Cards: React.FC<CardsProps> = ({ category }) => {
             <div className="modal-body text-center">
               {activeProduct && (
                 <>
-                  <img src={activeProduct.images[0]} alt={activeProduct.model} className="img-fluid rounded mb-3" style={{ maxHeight: 320, objectFit: "contain" }} />
+                  <div style={{ position: 'relative', width: '100%', height: 320 }}>
+                    <Image src={activeProduct.images[0]} alt={activeProduct.model} fill style={{ objectFit: 'contain' }} />
+                  </div>
                   <div><strong>Price:</strong> ₹{activeProduct.price}</div>
                   <div><strong>Size:</strong> {activeProduct.size}</div>
                   <p>{activeProduct.description}</p>
 
-                  {/* Try Now button: closes product modal (via data-bs-dismiss) and opens VirtualTryOn */}
                   <div className="d-flex gap-2 justify-content-center mt-3">
                     <button
                       type="button"
                       className="btn btn-outline-primary"
                       data-bs-dismiss="modal"
-                      onClick={() => {
-                        // after modal closes, open try-on
-                        // small timeout to allow bootstrap to remove backdrop
-                        setTimeout(() => setShowTryOn(true), 250);
-                      }}
+                      onClick={() => setTimeout(() => setShowTryOn(true), 250)}
                     >
                       👓 Try Now
                     </button>
@@ -159,7 +148,7 @@ const Cards: React.FC<CardsProps> = ({ category }) => {
         </div>
       </div>
 
-      {/* Virtual Try-On overlay (renders when showTryOn true) */}
+      {/* Virtual Try-On */}
       {showTryOn && activeProduct && (
         <VirtualTryOn
           frameSrc={activeProduct.images[0]}
