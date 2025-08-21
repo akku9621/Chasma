@@ -1,0 +1,15 @@
+/* Virtual Try-On modal styles */
+.vt-modal { z-index: 2000; } /* above other UI */
+.vt-canvas {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  background: #000;
+}
+.vt-loading {
+  padding: 28px;
+  font-weight: 600;
+}
+.modal-backdrop.show {
+  z-index: 1990;
+}

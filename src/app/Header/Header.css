@@ -1,0 +1,53 @@
+/* Navbar base */
+.custom-navbar {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Brand */
+.logo-icon { font-size: 1.6rem; margin-right: 6px; }
+.brand-text {
+  font-weight: 700;
+  font-size: 1.2rem;
+  background: linear-gradient(90deg,#28b7fc,#19e4a1,#fba63b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Nav links */
+.nav-link {
+  font-weight: 500;
+  color: #333 !important;
+  transition: color .2s;
+}
+.nav-link:hover { color: #17a2b8 !important; }
+
+/* Buttons */
+.nav-btn {
+  background: linear-gradient(90deg,#28b7fc 0%, #19e4a1 90%);
+  color:#fff !important;
+  font-weight:600;
+  border-radius: 20px;
+  padding: 6px 14px;
+  transition: transform .15s, box-shadow .15s;
+}
+.nav-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 3px 10px rgba(25, 200, 200, 0.3);
+}
+.call-btn {
+  background: linear-gradient(90deg,#3be165 0%, #13b8f8 90%);
+}
+
+/* Toggler icon fix (Bootstrap override) */
+.navbar-toggler {
+  border: none;
+}
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%2833, 37, 41, 0.7%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}

@@ -1,0 +1,33 @@
+.login-btn {
+  border-radius: 20px;
+  font-weight: 600;
+  padding: 6px 16px;
+}
+
+/* Login Modal Panel */
+.login-panel {
+  border-radius: 20px;
+  padding: 1rem;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+}
+
+/* Inputs */
+.login-panel .form-control {
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  box-shadow: none;
+}
+
+.login-panel .form-control:focus {
+  border-color: #1db9ef;
+  box-shadow: 0 0 0 0.2rem rgba(29,185,239,0.25);
+}
+
+.login-panel .btn-primary {
+  background: linear-gradient(90deg, #24e074, #1db9ef);
+  border: none;
+  border-radius: 12px;
+  padding: 10px;
+  font-weight: 600;
+}

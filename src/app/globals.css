@@ -1,0 +1,25 @@
+:root {
+  --brand-blue: #2a81ed;
+  --brand-teal: #09b999;
+  --brand-amber: #fba63b;
+}
+
+html, body {
+  font-family: 'Poppins', Arial, sans-serif;
+  background: linear-gradient(120deg, #e2eaff 10%, #c5f2f7 45%, #f5ffe5 100%);
+  min-height: 100vh;
+  color: #2f4b66;
+}
+
+.site-title {
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--brand-blue), var(--brand-teal), var(--brand-amber));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 26px rgba(38, 104, 163, 0.10);
+}
+
+.site-subtitle { opacity: .77; }
+footer { background:#fff; border-top:1.5px solid #e2eaf1; }

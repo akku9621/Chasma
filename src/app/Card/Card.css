@@ -1,0 +1,63 @@
+.custom-card {
+  border-radius: 16px;
+  max-width: 320px;
+  min-width: 220px;
+  transition: box-shadow 0.18s, transform 0.16s;
+  cursor: pointer;
+}
+
+.custom-card:hover, .custom-card:focus {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+  transform: translateY(-3px) scale(1.025);
+  outline: none;
+}
+
+.custom-card-img {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  height: 185px;
+  object-fit: cover;
+}
+
+.custom-card-model {
+  color: #1065ad;
+  font-weight: 700;
+  font-size: 1.18rem;
+}
+
+.custom-card-price {
+  font-size: 1.05rem;
+}
+
+.custom-card-size {
+  font-size: 0.99rem;
+}
+
+.custom-order-btn {
+  border-radius: 22px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  background: linear-gradient(90deg, #2acbf9 0%, #16df82 90%);
+  border: none;
+  transition: background .18s;
+}
+.custom-order-btn:hover {
+  background: linear-gradient(90deg, #0bb5e6 20%, #04bf7b 110%);
+}
+
+.custom-card-desc {
+  min-height: 48px;
+  color: #555;
+}
+
+.modal-img {
+  width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+  border-radius: 11px;
+}
+
+.modal-footer .btn-success {
+  border-radius: 22px;
+  font-weight: 600;
+}
