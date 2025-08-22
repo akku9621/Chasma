@@ -14,7 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     const isAdmin = Cookies.get("isAdmin"); // ✅ Read from cookies
     if (!isAdmin) {
-      router.replace("/login");
+      router.replace("/Login");
     } else {
       setChecking(false);
     }
@@ -22,7 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const handleLogout = () => {
     Cookies.remove("isAdmin"); // ✅ Clear cookie
-    router.push("/login");
+    router.push("/Login");
   };
 
   if (checking) {

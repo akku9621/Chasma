@@ -21,7 +21,7 @@ export default function AdminPanel() {
       typeof window !== "undefined" && localStorage.getItem("isAdmin") === "true";
 
     if (!hasCookie && !hasLocalStorage) {
-      router.replace("/login");
+      router.replace("/Login");
     } else {
       setChecking(false);
     }
@@ -33,7 +33,7 @@ export default function AdminPanel() {
     } catch {}
     // Expire cookie immediately
     document.cookie = "isAdmin=; path=/; Max-Age=0; samesite=lax";
-    router.replace("/login");
+    router.replace("/Login");
   };
 
   if (checking) {

@@ -6,11 +6,11 @@ export function middleware(request: NextRequest) {
 
   // If not logged in and trying to access /admin, redirect
   if (!isAdmin && request.nextUrl.pathname.startsWith("/admin")) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/Login", request.url));
   }
 
-  // If already logged in and trying to visit /login, redirect to /admin
-  if (isAdmin && request.nextUrl.pathname.startsWith("/login")) {
+  // If already logged in and trying to visit /Login, redirect to /admin
+  if (isAdmin && request.nextUrl.pathname.startsWith("/Login")) {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 
@@ -18,5 +18,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login"],
+  matcher: ["/admin/:path*", "/Login"],
 };
