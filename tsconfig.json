@@ -22,9 +22,8 @@
       "@/*": ["./src/*"]
     },
 
-    // 👇 Add these two so TypeScript finds js-cookie types
-    "typeRoots": ["./node_modules/@types", "./src/types"],
-    "types": ["js-cookie"]
+    // 👇 only keep this
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": [
     "next-env.d.ts",
