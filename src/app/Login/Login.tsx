@@ -1,68 +1,62 @@
-'use client';
+"use client";
 
-import React from "react";
-import "./Login.css";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-const Login: React.FC = () => {
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      // Call your backend API for login
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        setError("Invalid credentials");
+        return;
+      }
+
+      // ✅ Set cookie (for middleware)
+      document.cookie = "isAdmin=true; path=/";
+
+      // ✅ Redirect to admin
+      router.push("/admin");
+    } catch (err) {
+      setError("Something went wrong");
+    }
+  };
+
   return (
-    <>
-      {/* Trigger button - you can move this to Header */}
-      <button
-        className="btn btn-outline-primary login-btn"
-        data-bs-toggle="modal"
-        data-bs-target="#loginModal"
-      >
-        Login
-      </button>
-
-      {/* Login Modal */}
-      <div
-        className="modal fade"
-        id="loginModal"
-        tabIndex={-1}
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content login-panel">
-            <div className="modal-header border-0">
-              <h5 className="modal-title fw-bold">Welcome Back</h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <form>
-                <div className="mb-3 text-start">
-                  <label className="form-label">Email</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    placeholder="Enter your email"
-                  />
-                </div>
-                <div className="mb-3 text-start">
-                  <label className="form-label">Password</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    placeholder="Enter password"
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary w-100">
-                  Login
-                </button>
-              </form>
-              <p className="text-center mt-3 small">
-                Don’t have an account? <a href="#">Sign up</a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+    <div className="login-container">
+      <h1>Login</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Login</button>
+      </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+    </div>
   );
-};
-
-export default Login;
+}

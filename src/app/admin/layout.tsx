@@ -1,18 +1,37 @@
-'use client';
+"use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie"; // ✅ Import js-cookie for handling cookies
 import "./admin.css";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const isAdmin = Cookies.get("isAdmin"); // ✅ Read from cookies
+    if (!isAdmin) {
+      router.replace("/login");
+    } else {
+      setChecking(false);
+    }
+  }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem("isAdmin");
-    router.push("/admin/login");
+    Cookies.remove("isAdmin"); // ✅ Clear cookie
+    router.push("/login");
   };
+
+  if (checking) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="spinner-border text-primary" role="status"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-layout">
@@ -20,10 +39,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className={`sidebar ${sidebarOpen ? "active" : ""}`}>
         <h2 className="sidebar-title">Admin Panel</h2>
         <ul className="sidebar-menu">
-          <li><Link href="/admin" onClick={() => setSidebarOpen(false)}>🏠 Dashboard</Link></li>
-          <li><Link href="/admin/categories" onClick={() => setSidebarOpen(false)}>📂 Categories</Link></li>
-          <li><Link href="/admin/products" onClick={() => setSidebarOpen(false)}>📦 Products</Link></li>
-          <li><Link href="/admin/products/upload" onClick={() => setSidebarOpen(false)}>⬆️ Upload Product</Link></li>
+          <li>
+            <Link href="/admin" onClick={() => setSidebarOpen(false)}>
+              🏠 Dashboard
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/categories" onClick={() => setSidebarOpen(false)}>
+              📂 Categories
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/products" onClick={() => setSidebarOpen(false)}>
+              📦 Products
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/products/upload" onClick={() => setSidebarOpen(false)}>
+              ⬆️ Upload Product
+            </Link>
+          </li>
         </ul>
       </aside>
 
@@ -43,7 +78,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             Logout
           </button>
         </header>
+
         <main className="p-4">{children}</main>
+
         <footer className="admin-footer">
           © {new Date().getFullYear()} Jyoti Netra Seva
         </footer>

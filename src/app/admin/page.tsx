@@ -1,30 +1,45 @@
-'use client';
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${name}=`));
+  return match ? decodeURIComponent(match.split("=")[1]) : null;
+}
 
 export default function AdminPanel() {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const isAdmin = localStorage.getItem("isAdmin");
-    if (!isAdmin) {
-      router.replace("/admin/login"); // redirect immediately
+    const hasCookie = getCookie("isAdmin") === "true";
+    const hasLocalStorage =
+      typeof window !== "undefined" && localStorage.getItem("isAdmin") === "true";
+
+    if (!hasCookie && !hasLocalStorage) {
+      router.replace("/login");
     } else {
-      setChecking(false); // allow rendering only if session exists
+      setChecking(false);
     }
   }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem("isAdmin");
-    router.push("/admin/login");
+    try {
+      localStorage.removeItem("isAdmin");
+    } catch {}
+    // Expire cookie immediately
+    document.cookie = "isAdmin=; path=/; Max-Age=0; samesite=lax";
+    router.replace("/login");
   };
 
   if (checking) {
     return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <div className="spinner-border text-primary" role="status"></div>
+      <div className="container py-5">
+        <p className="lead">Checking session…</p>
       </div>
     );
   }
