@@ -143,7 +143,8 @@ export default function VirtualTryOn({ frameSrc, onClose }: VirtualTryOnProps) {
             const frameWidth = Math.min(eyeDistance * 2.2, faceWidth * 1.05);
             const frameHeight = faceHeight * 0.55;
 
-            const angle = Math.atan2(dy, dx);
+            // --- FIX: No rotation (0°) ---
+            const angle = 0;
 
             const img = frameImgRef.current!;
             if (img.complete) {

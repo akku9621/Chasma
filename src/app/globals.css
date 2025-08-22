@@ -1,25 +1,77 @@
+/* Default variables (Classic) */
 :root {
   --brand-blue: #2a81ed;
   --brand-teal: #09b999;
   --brand-amber: #fba63b;
+
+  --bg-gradient: linear-gradient(135deg, #fdfdfd 0%, #e9ecef 50%, #dfe3e6 100%);
+  --text-color: #2f4b66;
+  --title-font: 'Urbanist', sans-serif;
+  --body-font: 'Quicksand', sans-serif;
+}
+
+/* Ocean Theme */
+[data-theme="ocean"] {
+  --bg-gradient: linear-gradient(135deg, #007cf0, #00dfd8);
+  --text-color: #f0faff;
+  --title-font: 'Raleway', sans-serif;
+  --body-font: 'Nunito Sans', sans-serif;
+}
+
+/* Sunset Theme */
+[data-theme="sunset"] {
+  --bg-gradient: linear-gradient(135deg, #ff7e5f, #feb47b);
+  --text-color: #2a1a1f;
+  --title-font: 'Montserrat', sans-serif;
+  --body-font: 'Quicksand', sans-serif;
+}
+
+/* Forest Theme */
+[data-theme="forest"] {
+  --bg-gradient: linear-gradient(135deg, #5a9367, #2c5530);
+  --text-color: #f4fff6;
+  --title-font: 'Raleway', sans-serif;
+  --body-font: 'Urbanist', sans-serif;
+}
+
+/* Royal Theme */
+[data-theme="royal"] {
+  --bg-gradient: linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b);
+  --text-color: #fff8f0;
+  --title-font: 'Montserrat', sans-serif;
+  --body-font: 'Nunito Sans', sans-serif;
 }
 
 html, body {
-  font-family: 'Poppins', Arial, sans-serif;
-  background: linear-gradient(120deg, #e2eaff 10%, #c5f2f7 45%, #f5ffe5 100%);
+  font-family: var(--body-font);
+  background: var(--bg-gradient);
   min-height: 100vh;
-  color: #2f4b66;
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
 }
 
 .site-title {
+  font-family: var(--title-font);
   font-weight: 700;
   background: linear-gradient(90deg, var(--brand-blue), var(--brand-teal), var(--brand-amber));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   letter-spacing: 0.06em;
-  text-shadow: 0 2px 26px rgba(38, 104, 163, 0.10);
 }
 
-.site-subtitle { opacity: .77; }
-footer { background:#fff; border-top:1.5px solid #e2eaf1; }
+.site-subtitle {
+  font-family: var(--body-font);
+  opacity: 0.8;
+  font-weight: 400;
+  font-size: 1.05rem;
+}
+
+footer {
+  background: #fff;
+  border-top: 1.5px solid #e2eaf1;
+  padding: 1.5rem;
+  font-size: 0.9rem;
+  color: #555;
+}

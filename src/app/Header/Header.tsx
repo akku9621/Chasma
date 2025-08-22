@@ -1,12 +1,23 @@
-'use client';
+"use client";
 
 import React from "react";
 import "./Header.css";
+import { useTheme } from "../context/ThemeContext";
+
+const themes = ["classic", "ocean", "sunset", "forest", "royal"];
 
 const Header: React.FC = () => {
   const handleScroll = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const { theme, setTheme } = useTheme();
+
+  const handleThemeClick = () => {
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex] as any);
   };
 
   return (
@@ -46,6 +57,18 @@ const Header: React.FC = () => {
             <li className="nav-item">
               <button className="nav-link btn btn-link" onClick={() => handleScroll("offers")}>Offers</button>
             </li>
+
+            {/* Theme Switcher as Button */}
+            <li className="nav-item">
+              <button
+                className="btn btn-sm nav-btn"
+                onClick={handleThemeClick}
+              >
+                {theme.charAt(0).toUpperCase() + theme.slice(1)}
+              </button>
+            </li>
+
+            {/* Action Buttons */}
             <li className="nav-item d-flex gap-2 mt-2 mt-lg-0">
               <a
                 className="btn btn-sm nav-btn"
