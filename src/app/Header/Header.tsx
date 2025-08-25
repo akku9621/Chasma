@@ -26,13 +26,20 @@ const Header: React.FC = () => {
     i18n.changeLanguage(i18n.language === "en" ? "hi" : "en");
   };
 
+  // ✅ Select logo based on language
+  const logoPath = i18n.language === "en" ? "/pictures/logo_en.png" : "/pictures/logo_hi.png";
+
   return (
     <nav className="navbar navbar-expand-lg sticky-top custom-navbar">
       <div className="container-fluid px-3">
-        {/* Brand */}
-        <a className="navbar-brand d-flex align-items-center" href="#">
-          <span className="logo-icon">👓</span>
-          <span className="brand-text">{t("brand")}</span>
+        {/* ✅ Logo + Brand */}
+        <a className="navbar-brand d-flex align-items-center gap-2" href="#">
+          <img
+            src={logoPath} // dynamically changes with language
+            alt="Jyoti Netraseva Logo"
+            style={{ height: "50px", objectFit: "contain" }}
+          />
+          <span className="brand-text fw-bold">{t("brand")}</span>
         </a>
 
         {/* Hamburger */}
