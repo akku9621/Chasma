@@ -91,7 +91,7 @@ const Cards: React.FC<CardsProps> = ({ category }) => {
                 <div className="text-muted mb-2">Size: {p.size}</div>
                 <p className="small text-muted">{p.description}</p>
                 <button
-                  className="btn btn-sm whatsapp-btn"
+                  className="btn btn-sm whatsapp-btn btn btn-success"
                   data-bs-toggle="modal"
                   data-bs-target="#cardModal"
                   onClick={() => openProduct(p)}
