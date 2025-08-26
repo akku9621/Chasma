@@ -9,23 +9,28 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
-    // Demo credentials: adjust to your backend auth as needed
-    if (email === "admin@gmail.com" && password === "admin123") {
-      // ✅ Persist auth for BOTH your guards
-      // Cookie (consumed by middleware)
-      document.cookie = `isAdmin=true; path=/; max-age=${60 * 60 * 24}; samesite=lax`;
-      // localStorage (consumed by /admin page client check)
-      try {
-        localStorage.setItem("isAdmin", "true");
-      } catch {}
+    try {
+      // ✅ Call our Next.js API route (not backend directly)
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-      // Go to admin
+      if (!res.ok) {
+        const errData = await res.json();
+        setError(errData.message || "❌ Login failed");
+        return;
+      }
+
+      // ✅ Redirect to /admin after cookie is set
       router.push("/admin");
-    } else {
-      setError("❌ Invalid email or password");
+    } catch (err: any) {
+      setError("Something went wrong");
     }
   };
 
@@ -44,7 +49,7 @@ export default function AdminLoginPage() {
           <div className="mb-3">
             <label className="form-label">Email</label>
             <input
-              type="email"
+              type="text"
               className="form-control"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

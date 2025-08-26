@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
       "via.placeholder.com",
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "https://chashma-backend.vercel.app/api/:path*", // ✅ backend
+      },
+    ];
+  },
 };
 
 export default nextConfig;
