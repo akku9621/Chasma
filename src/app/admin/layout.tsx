@@ -3,25 +3,67 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie"; // ✅ Import js-cookie for handling cookies
+import Cookies from "js-cookie"; // ✅ For cookies
+import { API } from "../../services/api"; // ✅ Import API constants
 import "./admin.css";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    const isAdmin = Cookies.get("isAdmin"); // ✅ Read from cookies
-    if (!isAdmin) {
+    const isAdmin = Cookies.get("isAdmin");
+    const token = Cookies.get("token");
+
+    // ❌ If missing cookies, redirect
+    if (!isAdmin || !token) {
       router.replace("/Login");
-    } else {
-      setChecking(false);
+      return;
     }
+
+    // ✅ Validate token with backend
+    const verifyUser = async () => {
+      try {
+        const res = await fetch(`${API.AUTH.ME}?token=${token}`);
+        if (!res.ok) {
+          throw new Error("Invalid token");
+        }
+
+        const data = await res.json();
+
+        if (!data || !data.username) {
+          throw new Error("Auth failed");
+        }
+
+        // ✅ Save user info in cookies for reuse
+        Cookies.set("username", data.username, { expires: 1 });
+        Cookies.set("email", data.email || "", { expires: 1 });
+        Cookies.set("role", data.role || "admin", { expires: 1 });
+
+        setUsername(data.username);
+        setChecking(false);
+      } catch (err) {
+        // ❌ Invalid token → clear cookies
+        Cookies.remove("isAdmin");
+        Cookies.remove("token");
+        Cookies.remove("username");
+        Cookies.remove("email");
+        Cookies.remove("role");
+        router.replace("/Login");
+      }
+    };
+
+    verifyUser();
   }, [router]);
 
   const handleLogout = () => {
-    Cookies.remove("isAdmin"); // ✅ Clear cookie
+    Cookies.remove("isAdmin");
+    Cookies.remove("token");
+    Cookies.remove("username");
+    Cookies.remove("email");
+    Cookies.remove("role");
     router.push("/Login");
   };
 
@@ -73,7 +115,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             ☰
           </button>
 
-          <span className="fw-bold">👋 Hello, Admin</span>
+          {/* ✅ Use actual username */}
+          <span className="fw-bold">👋 Hello, {username || "Admin"}</span>
+
           <button className="btn btn-danger btn-sm" onClick={handleLogout}>
             Logout
           </button>

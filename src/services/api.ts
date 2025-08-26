@@ -6,6 +6,7 @@ export const API = {
     REGISTER: `${BASE_URL}/auth/register`,
     LOGOUT: `${BASE_URL}/auth/logout`,
     REFRESH: `${BASE_URL}/auth/refresh-token`,
+    ME: `${BASE_URL}/auth/me`,
   },
 
   USERS: {

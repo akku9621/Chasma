@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie"; // ✅ For storing token
+import { API } from "../../services/api";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -14,22 +16,51 @@ export default function AdminLoginPage() {
     setError("");
 
     try {
-      // ✅ Call our Next.js API route (not backend directly)
-      const res = await fetch("/api/login", {
+      // ✅ Login API
+      const res = await fetch(API.AUTH.LOGIN, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username: email, password }), // backend expects "username"
       });
 
+      const data = await res.json();
+      console.log("############ Login response:", data);
+
       if (!res.ok) {
-        const errData = await res.json();
-        setError(errData.message || "❌ Login failed");
+        setError(data.message || "❌ Login failed");
         return;
       }
 
-      // ✅ Redirect to /admin after cookie is set
+      // ✅ Save token
+      if (data.access_token) {
+        Cookies.set("token", data.access_token, { expires: 1 }); // 1 day
+        Cookies.set("isAdmin", "true", { expires: 1 });
+      } else {
+        setError("❌ No token received");
+        return;
+      }
+
+      // ✅ Call auth/me to verify user
+      const meRes = await fetch(`${API.AUTH.ME}?token=${data.access_token}`);
+      const meData = await meRes.json();
+      console.log("############ Me response:", meData);
+
+      if (meRes.ok) {
+        // store user info in cookies for later use
+        Cookies.set("username", meData.username, { expires: 1 });
+        Cookies.set("email", meData.email, { expires: 1 });
+        Cookies.set("role", meData.role, { expires: 1 });
+      } else {
+        setError("❌ Authentication failed");
+        Cookies.remove("token");
+        Cookies.remove("isAdmin");
+        return;
+      }
+
+      // ✅ Redirect after login success
       router.push("/admin");
     } catch (err: any) {
+      console.error(err);
       setError("Something went wrong");
     }
   };
@@ -47,7 +78,7 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label">Email</label>
+            <label className="form-label">Email / Username</label>
             <input
               type="text"
               className="form-control"
