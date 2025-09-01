@@ -10,10 +10,12 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // ✅ loader state
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true); // ✅ start loading
 
     try {
       // ✅ Login API
@@ -24,10 +26,10 @@ export default function AdminLoginPage() {
       });
 
       const data = await res.json();
-      console.log("############ Login response:", data);
 
       if (!res.ok) {
         setError(data.message || "❌ Login failed");
+        setLoading(false);
         return;
       }
 
@@ -37,13 +39,13 @@ export default function AdminLoginPage() {
         Cookies.set("isAdmin", "true", { expires: 1 });
       } else {
         setError("❌ No token received");
+        setLoading(false);
         return;
       }
 
       // ✅ Call auth/me to verify user
       const meRes = await fetch(`${API.AUTH.ME}?token=${data.access_token}`);
       const meData = await meRes.json();
-      console.log("############ Me response:", meData);
 
       if (meRes.ok) {
         // store user info in cookies for later use
@@ -54,6 +56,7 @@ export default function AdminLoginPage() {
         setError("❌ Authentication failed");
         Cookies.remove("token");
         Cookies.remove("isAdmin");
+        setLoading(false);
         return;
       }
 
@@ -62,6 +65,8 @@ export default function AdminLoginPage() {
     } catch (err: any) {
       console.error(err);
       setError("Something went wrong");
+    } finally {
+      setLoading(false); // ✅ stop loading when done
     }
   };
 
@@ -87,6 +92,7 @@ export default function AdminLoginPage() {
               placeholder="admin@gmail.com"
               required
               autoFocus
+              disabled={loading} // ✅ disable while loading
             />
           </div>
 
@@ -99,11 +105,19 @@ export default function AdminLoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="admin123"
               required
+              disabled={loading} // ✅ disable while loading
             />
           </div>
 
-          <button type="submit" className="btn btn-primary w-100">
-            Login
+          <button
+            type="submit"
+            className="btn btn-primary w-100"
+            disabled={loading} // ✅ disable while loading
+          >
+            {loading ? (
+              <span className="spinner-border spinner-border-sm me-2" role="status" />
+            ) : null}
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
       </div>
