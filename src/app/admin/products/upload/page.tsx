@@ -1,83 +1,89 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { API } from "@/services/api";
 
 interface Category {
   id: number;
   name: string;
 }
 
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  size: string;
-  category: string;
-  photo: string; // base64 string for now
-}
-
 export default function UploadProductPage() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [size, setSize] = useState("");
   const [category, setCategory] = useState("");
-  const [photo, setPhoto] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Load categories + products from localStorage
   useEffect(() => {
-    const savedCats = localStorage.getItem("categories");
-    if (savedCats) setCategories(JSON.parse(savedCats));
-
-    const savedProducts = localStorage.getItem("products");
-    if (savedProducts) setProducts(JSON.parse(savedProducts));
+    // Example: load categories from API if available
+    setCategories([
+      { id: 1, name: "Men" },
+      { id: 2, name: "Women" },
+      { id: 3, name: "Children" },
+    ]);
   }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPhoto(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    if (file) setPhoto(file);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !price || !category) {
-      alert("⚠️ Please fill required fields.");
+    if (!name || !price || !category || !photo) {
+      alert("⚠️ Please fill all required fields (including photo).");
       return;
     }
 
-    const newProduct: Product = {
-      id: Date.now(),
-      name,
-      description,
-      price: parseFloat(price),
-      size,
-      category,
-      photo,
-    };
+    const token = Cookies.get("token");
+    if (!token) {
+      alert("❌ You are not logged in.");
+      return;
+    }
 
-    const updatedProducts = [...products, newProduct];
-    setProducts(updatedProducts);
-    localStorage.setItem("products", JSON.stringify(updatedProducts));
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("slug", name.toLowerCase().replace(/\s+/g, "-"));
+      formData.append("description", description);
+      formData.append("price", String(Number(price)));
+      formData.append("category_id", String(Number(category)));
+      formData.append("size", size);
+      formData.append("language", "english");
+      formData.append("photo", photo); // 🔑 backend expects `photo`
 
-    // Reset form
-    setName("");
-    setDescription("");
-    setPrice("");
-    setSize("");
-    setCategory("");
-    setPhoto("");
-    alert("✅ Product uploaded successfully!");
+      const res = await fetch(`${API.PRODUCTS.CREATE}?token=${token}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("Upload failed:", data);
+        alert(`❌ Failed: ${data.message || "Validation error"}`);
+      } else {
+        alert("✅ Product uploaded successfully!");
+        // reset form
+        setName("");
+        setDescription("");
+        setPrice("");
+        setSize("");
+        setCategory("");
+        setPhoto(null);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("❌ Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -109,15 +115,21 @@ export default function UploadProductPage() {
           />
         </div>
 
-        {/* Size */}
+        {/* Size (dropdown) */}
         <div className="col-md-6">
-          <label className="form-label">Size</label>
-          <input
-            type="text"
-            className="form-control"
+          <label className="form-label">Size *</label>
+          <select
+            className="form-select"
             value={size}
             onChange={(e) => setSize(e.target.value)}
-          />
+            required
+          >
+            <option value="">-- Select Size --</option>
+            <option value="small">Small</option>
+            <option value="medium">Medium</option>
+            <option value="large">Large</option>
+            <option value="extra_large">Extra Large</option>
+          </select>
         </div>
 
         {/* Category */}
@@ -131,7 +143,7 @@ export default function UploadProductPage() {
           >
             <option value="">-- Select Category --</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.name}>
+              <option key={c.id} value={String(c.id)}>
                 {c.name}
               </option>
             ))}
@@ -151,16 +163,17 @@ export default function UploadProductPage() {
 
         {/* Photo Upload */}
         <div className="col-12">
-          <label className="form-label">Photo</label>
+          <label className="form-label">Photo *</label>
           <input
             type="file"
             className="form-control"
             accept="image/*"
             onChange={handleImageUpload}
+            required
           />
           {photo && (
             <img
-              src={photo}
+              src={URL.createObjectURL(photo)}
               alt="Preview"
               className="img-fluid mt-2 rounded"
               style={{ maxHeight: "200px" }}
@@ -170,8 +183,8 @@ export default function UploadProductPage() {
 
         {/* Submit */}
         <div className="col-12">
-          <button type="submit" className="btn btn-success">
-            Save Product
+          <button type="submit" className="btn btn-success" disabled={loading}>
+            {loading ? "Uploading..." : "Save Product"}
           </button>
         </div>
       </form>
