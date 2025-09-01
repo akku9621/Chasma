@@ -20,8 +20,8 @@ export const API = {
     GET_ALL: `${BASE_URL}/products`,
     // GET_BY_ID: (id: string) => `${BASE_URL}/products/${id}`,
     CREATE: `${BASE_URL}/products`,
-    // UPDATE: (id: string) => `${BASE_URL}/products/${id}`,
-    // DELETE: (id: string) => `${BASE_URL}/products/${id}`,
+    UPDATE: (id: string) => `${BASE_URL}/products/${id}`,
+    DELETE: (id: string) => `${BASE_URL}/products/${id}`,
   },
 
   // ORDERS: {

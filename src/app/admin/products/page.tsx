@@ -14,19 +14,23 @@ interface Product {
   category_name: string;
   image_path: string;
   image_folder: string;
+  language?: string;
+  is_active?: boolean;
 }
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10); // items per page
+  const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // filters
   const [categoryId, setCategoryId] = useState<string>("");
   const [productSize, setProductSize] = useState<string>("");
   const [search, setSearch] = useState<string>("");
+
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [formData, setFormData] = useState<any>({});
 
   const token = Cookies.get("token");
 
@@ -42,7 +46,6 @@ export default function ProductsPage() {
         page: String(page),
         size: String(size),
       });
-
       if (categoryId) params.append("category_id", categoryId);
       if (productSize) params.append("product_size", productSize);
       if (search) params.append("search", search);
@@ -68,11 +71,78 @@ export default function ProductsPage() {
     fetchProducts();
   }, [page, size, categoryId, productSize, search]);
 
+  const handleFormChange = (key: string, value: any) => {
+    setFormData((prev: any) => ({ ...prev, [key]: value }));
+  };
+
+  const openEditModal = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      category_id: product.category_id,
+      size: product.size,
+      language: product.language || "hindi",
+      is_active: product.is_active ?? true,
+    });
+  };
+
+  const updateProduct = async () => {
+    if (!token || !editingProduct) return;
+
+    try {
+      const res = await fetch(
+        `${API.PRODUCTS.GET_ALL}/${editingProduct.id}?token=${token}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Update failed:", data);
+        alert("❌ Failed to update product.");
+      } else {
+        alert("✅ Product updated successfully.");
+        setEditingProduct(null);
+        fetchProducts();
+      }
+    } catch (err) {
+      console.error("Update error:", err);
+    }
+  };
+
+  const deleteProduct = async (id: number) => {
+    if (!token) return;
+
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    try {
+      const res = await fetch(`${API.PRODUCTS.GET_ALL}/${id}?token=${token}`, {
+        method: "DELETE",
+      });
+
+      if (res.status === 204) {
+        alert("✅ Product deleted successfully.");
+        fetchProducts();
+      } else {
+        const data = await res.json();
+        console.error("Delete failed:", data);
+        alert("❌ Failed to delete product.");
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
+  };
+
   return (
     <div className="container">
       <h2 className="fw-bold mb-4">📦 Products</h2>
 
-      {/* 🔍 Filters */}
+      {/* Filters */}
       <div className="row g-2 mb-3">
         <div className="col-md-3">
           <input
@@ -118,7 +188,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* 📋 Table */}
+      {/* Table */}
       {loading ? (
         <p>Loading...</p>
       ) : products.length === 0 ? (
@@ -135,6 +205,7 @@ export default function ProductsPage() {
                 <th>Size</th>
                 <th>Category</th>
                 <th>Description</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -158,6 +229,20 @@ export default function ProductsPage() {
                   <td>{p.size}</td>
                   <td>{p.category_name || p.category_id}</td>
                   <td>{p.description}</td>
+                  <td>
+                    <button
+                      className="btn btn-sm btn-primary me-2"
+                      onClick={() => openEditModal(p)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => deleteProduct(p.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -165,7 +250,7 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* 🔄 Pagination */}
+      {/* Pagination */}
       <div className="d-flex justify-content-between align-items-center mt-3">
         <button
           className="btn btn-outline-secondary"
@@ -185,6 +270,91 @@ export default function ProductsPage() {
           Next
         </button>
       </div>
+
+      {/* Edit Modal */}
+      {editingProduct && (
+        <div className="modal show d-block" tabIndex={-1}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Edit Product</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setEditingProduct(null)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <input
+                  className="form-control mb-2"
+                  placeholder="Name"
+                  value={formData.name}
+                  onChange={(e) => handleFormChange("name", e.target.value)}
+                />
+                <input
+                  className="form-control mb-2"
+                  placeholder="Description"
+                  value={formData.description}
+                  onChange={(e) => handleFormChange("description", e.target.value)}
+                />
+                <input
+                  type="number"
+                  className="form-control mb-2"
+                  placeholder="Price"
+                  value={formData.price}
+                  onChange={(e) => handleFormChange("price", Number(e.target.value))}
+                />
+                <input
+                  type="number"
+                  className="form-control mb-2"
+                  placeholder="Category ID"
+                  value={formData.category_id}
+                  onChange={(e) => handleFormChange("category_id", Number(e.target.value))}
+                />
+                <select
+                  className="form-select mb-2"
+                  value={formData.size}
+                  onChange={(e) => handleFormChange("size", e.target.value)}
+                >
+                  <option value="small">Small</option>
+                  <option value="medium">Medium</option>
+                  <option value="large">Large</option>
+                  <option value="extra_large">Extra Large</option>
+                </select>
+                <select
+                  className="form-select mb-2"
+                  value={formData.language}
+                  onChange={(e) => handleFormChange("language", e.target.value)}
+                >
+                  <option value="hindi">Hindi</option>
+                  <option value="english">English</option>
+                </select>
+                <select
+                  className="form-select mb-2"
+                  value={formData.is_active ? "true" : "false"}
+                  onChange={(e) =>
+                    handleFormChange("is_active", e.target.value === "true")
+                  }
+                >
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setEditingProduct(null)}
+                >
+                  Close
+                </button>
+                <button className="btn btn-primary" onClick={updateProduct}>
+                  Save changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
