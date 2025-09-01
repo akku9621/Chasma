@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { API } from "@/services/api";
 
 interface Product {
   id: number;
@@ -8,71 +10,119 @@ interface Product {
   description: string;
   price: number;
   size: string;
-  category: string;
-  photo: string;
+  category_id: number;
+  category_name: string;
+  image_path: string;
+  image_folder: string;
 }
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(10); // items per page
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
-  const normalizeIds = (items: Product[]) => {
-    return items.map((item, index) => ({ ...item, id: index + 1 })); // ✅ IDs from 1
-  };
+  // filters
+  const [categoryId, setCategoryId] = useState<string>("");
+  const [productSize, setProductSize] = useState<string>("");
+  const [search, setSearch] = useState<string>("");
 
-  const loadProducts = () => {
-    const saved = localStorage.getItem("products");
-    if (saved) {
-      const parsed: Product[] = JSON.parse(saved);
-      const normalized = normalizeIds(parsed);
-      setProducts(normalized);
-      localStorage.setItem("products", JSON.stringify(normalized)); // keep synced
-    } else {
-      setProducts([]);
+  const token = Cookies.get("token");
+
+  const fetchProducts = async () => {
+    if (!token) {
+      alert("❌ You are not logged in.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page: String(page),
+        size: String(size),
+      });
+
+      if (categoryId) params.append("category_id", categoryId);
+      if (productSize) params.append("product_size", productSize);
+      if (search) params.append("search", search);
+
+      const res = await fetch(`${API.PRODUCTS.GET_ALL}?${params.toString()}&token=${token}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Error fetching products:", data);
+        return;
+      }
+
+      setProducts(data.items || []);
+      setTotalPages(data.pages || 1);
+    } catch (err) {
+      console.error("Fetch failed:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadProducts();
-
-    // Listen for localStorage changes
-    const handleStorage = () => loadProducts();
-    window.addEventListener("storage", handleStorage);
-
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
-
-  const deleteProduct = (id: number) => {
-    if (confirm("Are you sure you want to delete this product?")) {
-      const updated = products.filter((p) => p.id !== id);
-      const normalized = normalizeIds(updated);
-      setProducts(normalized);
-      localStorage.setItem("products", JSON.stringify(normalized));
-    }
-  };
-
-  const handleEditChange = (field: keyof Product, value: string | number) => {
-    if (!editingProduct) return;
-    setEditingProduct({ ...editingProduct, [field]: value });
-  };
-
-  const saveEdit = () => {
-    if (!editingProduct) return;
-    const updated = products.map((p) =>
-      p.id === editingProduct.id ? editingProduct : p
-    );
-    const normalized = normalizeIds(updated);
-    setProducts(normalized);
-    localStorage.setItem("products", JSON.stringify(normalized));
-    setEditingProduct(null);
-  };
+    fetchProducts();
+  }, [page, size, categoryId, productSize, search]);
 
   return (
     <div className="container">
-      <h2 className="fw-bold mb-4">📦 Manage Products</h2>
+      <h2 className="fw-bold mb-4">📦 Products</h2>
 
-      {products.length === 0 ? (
-        <p className="text-muted">No products uploaded yet.</p>
+      {/* 🔍 Filters */}
+      <div className="row g-2 mb-3">
+        <div className="col-md-3">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="col-md-3">
+          <select
+            className="form-select"
+            value={productSize}
+            onChange={(e) => setProductSize(e.target.value)}
+          >
+            <option value="">All Sizes</option>
+            <option value="small">Small</option>
+            <option value="medium">Medium</option>
+            <option value="large">Large</option>
+            <option value="extra_large">Extra Large</option>
+          </select>
+        </div>
+        <div className="col-md-3">
+          <input
+            type="number"
+            className="form-control"
+            placeholder="Category ID"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+          />
+        </div>
+        <div className="col-md-3">
+          <select
+            className="form-select"
+            value={size}
+            onChange={(e) => setSize(Number(e.target.value))}
+          >
+            <option value={10}>10 per page</option>
+            <option value={25}>25 per page</option>
+            <option value={50}>50 per page</option>
+          </select>
+        </div>
+      </div>
+
+      {/* 📋 Table */}
+      {loading ? (
+        <p>Loading...</p>
+      ) : products.length === 0 ? (
+        <p className="text-muted">No products found.</p>
       ) : (
         <div className="table-responsive">
           <table className="table table-bordered align-middle">
@@ -85,7 +135,6 @@ export default function ProductsPage() {
                 <th>Size</th>
                 <th>Category</th>
                 <th>Description</th>
-                <th style={{ width: "150px" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -93,9 +142,9 @@ export default function ProductsPage() {
                 <tr key={p.id}>
                   <td>{p.id}</td>
                   <td>
-                    {p.photo ? (
+                    {p.image_path ? (
                       <img
-                        src={p.photo}
+                        src={`${p.image_folder}/${p.image_path}`}
                         alt={p.name}
                         style={{ width: "60px", height: "60px", objectFit: "cover" }}
                         className="rounded"
@@ -106,23 +155,9 @@ export default function ProductsPage() {
                   </td>
                   <td>{p.name}</td>
                   <td>₹{p.price}</td>
-                  <td>{p.size || "-"}</td>
-                  <td>{p.category}</td>
-                  <td>{p.description || "-"}</td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-warning me-2"
-                      onClick={() => setEditingProduct(p)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => deleteProduct(p.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
+                  <td>{p.size}</td>
+                  <td>{p.category_name || p.category_id}</td>
+                  <td>{p.description}</td>
                 </tr>
               ))}
             </tbody>
@@ -130,89 +165,26 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* ✅ Edit Modal */}
-      {editingProduct && (
-        <div className="modal fade show d-block" tabIndex={-1} role="dialog">
-          <div className="modal-dialog modal-lg modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Edit Product</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setEditingProduct(null)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <label className="form-label">Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={editingProduct.name}
-                      onChange={(e) => handleEditChange("name", e.target.value)}
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Price</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={editingProduct.price}
-                      onChange={(e) =>
-                        handleEditChange("price", parseFloat(e.target.value))
-                      }
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Size</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={editingProduct.size}
-                      onChange={(e) => handleEditChange("size", e.target.value)}
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Category</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={editingProduct.category}
-                      onChange={(e) =>
-                        handleEditChange("category", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="col-12">
-                    <label className="form-label">Description</label>
-                    <textarea
-                      className="form-control"
-                      rows={3}
-                      value={editingProduct.description}
-                      onChange={(e) =>
-                        handleEditChange("description", e.target.value)
-                      }
-                    ></textarea>
-                  </div>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setEditingProduct(null)}
-                >
-                  Cancel
-                </button>
-                <button className="btn btn-success" onClick={saveEdit}>
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 🔄 Pagination */}
+      <div className="d-flex justify-content-between align-items-center mt-3">
+        <button
+          className="btn btn-outline-secondary"
+          disabled={page <= 1}
+          onClick={() => setPage(page - 1)}
+        >
+          Previous
+        </button>
+        <span>
+          Page {page} of {totalPages}
+        </span>
+        <button
+          className="btn btn-outline-secondary"
+          disabled={page >= totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }

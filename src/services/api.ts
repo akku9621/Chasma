@@ -17,7 +17,7 @@ export const API = {
   // },
 
   PRODUCTS: {
-    // GET_ALL: `${BASE_URL}/products`,
+    GET_ALL: `${BASE_URL}/products`,
     // GET_BY_ID: (id: string) => `${BASE_URL}/products/${id}`,
     CREATE: `${BASE_URL}/products`,
     // UPDATE: (id: string) => `${BASE_URL}/products/${id}`,
