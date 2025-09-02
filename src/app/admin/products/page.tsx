@@ -50,7 +50,11 @@ export default function ProductsPage() {
       if (productSize) params.append("product_size", productSize);
       if (search) params.append("search", search);
 
-      const res = await fetch(`${API.PRODUCTS.GET_ALL}?${params.toString()}&token=${token}`);
+      const res = await fetch(`${API.PRODUCTS.GET_ALL}?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
 
       if (!res.ok) {
@@ -85,6 +89,7 @@ export default function ProductsPage() {
       size: product.size,
       language: product.language || "hindi",
       is_active: product.is_active ?? true,
+      // image?: you can add a file input later; updateProduct already supports it
     });
   };
 
@@ -92,18 +97,65 @@ export default function ProductsPage() {
     if (!token || !editingProduct) return;
 
     try {
-      const res = await fetch(
-        `${API.PRODUCTS.GET_ALL}/${editingProduct.id}?token=${token}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
-      const data = await res.json();
+      // Build a diff against the original product: only send changed fields
+      const fd = new FormData();
 
+      const fields = [
+        "name",
+        "description",
+        "price",
+        "category_id",
+        "size",
+        "language",
+        "is_active",
+      ] as const;
+
+      fields.forEach((key) => {
+        const curr = (formData as any)[key];
+        const orig = (editingProduct as any)[key];
+
+        if (key === "price" || key === "category_id") {
+          // compare numerically for these fields
+          const currNum = curr !== undefined && curr !== null ? Number(curr) : curr;
+          const origNum = orig !== undefined && orig !== null ? Number(orig) : orig;
+          if (currNum !== undefined && currNum !== origNum) {
+            fd.append(key, String(currNum));
+          }
+        } else if (key === "is_active") {
+          const currBool = Boolean(curr);
+          const origBool = Boolean(orig);
+          if (currBool !== origBool) {
+            fd.append("is_active", String(currBool));
+          }
+        } else {
+          if (curr !== undefined && curr !== orig) {
+            fd.append(key, String(curr));
+          }
+        }
+      });
+
+      // If you add a file input named "image" to the modal, this will include it:
+      if (formData.image instanceof File) {
+        fd.append("image", formData.image);
+      }
+
+      // No changes? bail early to avoid 422s from empty/unchanged payloads
+      if ([...fd.keys()].length === 0) {
+        alert("No changes to save.");
+        return;
+      }
+
+      const res = await fetch(API.PRODUCTS.UPDATE(editingProduct.id), {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`, // don't set Content-Type with FormData
+        },
+        body: fd,
+      });
+
+      const result = await res.json();
       if (!res.ok) {
-        console.error("Update failed:", data);
+        console.error("Update failed:", result);
         alert("❌ Failed to update product.");
       } else {
         alert("✅ Product updated successfully.");
@@ -121,8 +173,11 @@ export default function ProductsPage() {
     if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
-      const res = await fetch(`${API.PRODUCTS.GET_ALL}/${id}?token=${token}`, {
+      const res = await fetch(API.PRODUCTS.DELETE(id), {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (res.status === 204) {
@@ -309,7 +364,9 @@ export default function ProductsPage() {
                   className="form-control mb-2"
                   placeholder="Category ID"
                   value={formData.category_id}
-                  onChange={(e) => handleFormChange("category_id", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleFormChange("category_id", Number(e.target.value))
+                  }
                 />
                 <select
                   className="form-select mb-2"
@@ -339,6 +396,15 @@ export default function ProductsPage() {
                   <option value="true">Active</option>
                   <option value="false">Inactive</option>
                 </select>
+                {/* If you add a file input for image later:
+                <input
+                  type="file"
+                  className="form-control mb-2"
+                  onChange={(e) =>
+                    handleFormChange("image", e.target.files ? e.target.files[0] : null)
+                  }
+                />
+                */}
               </div>
               <div className="modal-footer">
                 <button

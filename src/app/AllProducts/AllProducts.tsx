@@ -60,7 +60,7 @@ const AllProducts: React.FC = () => {
                 <div className="fw-bold mb-0">{p.model}</div>
                 <div className="price mt-1 mb-2">₹{p.price}</div>
                 <a href={p.waLink} target="_blank" className="whatsapp-btn">
-                  <i className="fab fa-whatsapp"></i> Order on WhatsApp
+                  <i className="fab fa-whatsapp"></i> Order on WhatsApp 1
                 </a>
               </div>
             </div>
@@ -80,7 +80,7 @@ const AllProducts: React.FC = () => {
               <img id="modalImg" src="" alt="Eyeglass" className="img-fluid rounded mb-3" style={{maxHeight:'360px'}} />
               <div id="modalDetails" className="mb-2"></div>
               <a id="modalWhatsapp" href="#" target="_blank" className="whatsapp-btn d-inline-block mb-1">
-                <i className="fab fa-whatsapp"></i> Order on WhatsApp
+                <i className="fab fa-whatsapp"></i> Order on WhatsApp 1
               </a>
             </div>
           </div>
