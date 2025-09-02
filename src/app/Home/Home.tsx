@@ -6,7 +6,7 @@ import "./Home.css";
 
 const Home: React.FC = () => {
   const categories = [
-    { id: 1, label: "Men Collection", description: "Discover the latest styles and eyewear trends for men." },
+    { id: 1, label: "Our_Products_Range", description: "Discover the latest styles and eyewear trends for men." },
     { id: 2, label: "Women Collection", description: "Explore elegant and modern frames designed for women." },
     { id: 3, label: "Children Collection", description: "Find durable and colorful eyewear made for kids." },
   ];
