@@ -19,14 +19,14 @@ const CategorySection: React.FC<CategorySectionProps> = ({ id, title, query }) =
       <div className="container py-4">
         {/* Title */}
         <h2 className="fw-bold text-center mb-3">
-          {t(`${id} collection`)}
+          {t(`Our_Products_Range`)}
         </h2>
 
         {/* Description */}
         <p className="text-center text-muted mb-4">
-          {id === "men" && t("men description")}
-          {id === "women" && t("women description")}
-          {id === "children" && t("kids description")}
+          {id === "Our_Products_Range" && t("Our_Products")}
+          {/* {id === "women" && t("women description")}
+          {id === "children" && t("kids description")} */}
         </p>
 
         {/* Cards */}

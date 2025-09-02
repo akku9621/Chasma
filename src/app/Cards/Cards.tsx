@@ -15,6 +15,15 @@ interface Product {
   image_path: string | null;
   image_folder: string | null;
   category_id?: number;
+  category_name?: string;
+}
+
+interface ApiResponse {
+  items: Product[];
+  total: number;
+  page: number;
+  size: number;
+  pages: number;
 }
 
 const categories = [
@@ -29,23 +38,49 @@ const Cards: React.FC = () => {
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
   const [showTryOn, setShowTryOn] = useState(false);
 
+  // 🔹 Pagination + filters
+  const [page, setPage] = useState(1);
+  const [size] = useState(12); // how many per page
+  const [search, setSearch] = useState("");
+  const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [productSize, setProductSize] = useState<string | null>(null);
+
+  const [totalPages, setTotalPages] = useState(1);
+
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API.PRODUCTS.GET_ALL}`);
+        const params = new URLSearchParams({
+          page: String(page),
+          size: String(size),
+        });
+        if (search) params.append("search", search);
+        if (categoryId) params.append("category_id", String(categoryId));
+        if (productSize) params.append("product_size", productSize);
+
+        const res = await fetch(`${API.PRODUCTS.GET_ALL}?${params.toString()}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
         if (!res.ok) throw new Error("Failed to fetch products");
-        const data = await res.json();
+
+        const data: ApiResponse = await res.json();
         setProducts(Array.isArray(data.items) ? data.items : []);
+        setTotalPages(data.pages || 1);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching products:", err);
         setProducts([]);
       } finally {
         setLoading(false);
       }
     };
+
     fetchProducts();
-  }, []);
+  }, [page, search, categoryId, productSize, size]);
 
   const openProduct = (p: Product) => setActiveProduct(p);
 
@@ -65,6 +100,38 @@ const Cards: React.FC = () => {
 
   return (
     <>
+      {/* 🔍 Filters */}
+      <div className="filters mb-4 d-flex gap-2">
+        {/* <input
+          type="text"
+          placeholder="Search..."
+          className="form-control"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        /> */}
+        <select
+          className="form-select"
+          value={categoryId ?? ""}
+          onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
+        >
+          <option value="">All Categories</option>
+          {categories.map(c => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+        <select
+          className="form-select"
+          value={productSize ?? ""}
+          onChange={(e) => setProductSize(e.target.value || null)}
+        >
+          <option value="">All Sizes</option>
+          <option value="S">Small</option>
+          <option value="M">Medium</option>
+          <option value="L">Large</option>
+        </select>
+      </div>
+
+      {/* Products grouped by category + size */}
       {groupedProducts.map(({ category, groupedBySize }) => (
         <div key={category.id} id={`category-${category.id}`} className="category-section mb-4">
           <h4 className="mb-3">{category.name}</h4>
@@ -81,7 +148,7 @@ const Cards: React.FC = () => {
                       <div style={{ position: 'relative', width: '100%', height: 160, cursor: 'pointer' }}>
                         {p.image_path ? (
                           <Image
-                            src={p.image_path}
+                            src={`${p.image_folder || ""}/${p.image_path}`}
                             alt={p.name}
                             fill
                             style={{ objectFit: 'contain' }}
@@ -115,6 +182,25 @@ const Cards: React.FC = () => {
         </div>
       ))}
 
+      {/* Pagination */}
+      <div className="d-flex justify-content-center mt-4">
+        <nav>
+          <ul className="pagination">
+            <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setPage(page - 1)}>Prev</button>
+            </li>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+              <li key={p} className={`page-item ${page === p ? "active" : ""}`}>
+                <button className="page-link" onClick={() => setPage(p)}>{p}</button>
+              </li>
+            ))}
+            <li className={`page-item ${page === totalPages ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setPage(page + 1)}>Next</button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
       {/* Product Modal */}
       <div className="modal fade" id="cardModal" tabIndex={-1} aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered modal-lg">
@@ -129,7 +215,7 @@ const Cards: React.FC = () => {
                   <div style={{ position: 'relative', width: '100%', height: 320 }}>
                     {activeProduct.image_path ? (
                       <Image
-                        src={activeProduct.image_path}
+                        src={`${activeProduct.image_folder || ""}/${activeProduct.image_path}`}
                         alt={activeProduct.name}
                         fill
                         style={{ objectFit: 'contain' }}
@@ -171,7 +257,7 @@ const Cards: React.FC = () => {
       {/* Virtual Try-On */}
       {showTryOn && activeProduct && (
         <VirtualTryOn
-          frameSrc={activeProduct.image_path || ""}
+          frameSrc={`${activeProduct.image_folder || ""}/${activeProduct.image_path}`}
           onClose={() => setShowTryOn(false)}
         />
       )}

@@ -21,9 +21,9 @@ export default function App() {
       <Offer />
 
       {/* Category Sections */}
-      <CategorySection id="men" title={t("men collection")} query="man glasses" />
-      <CategorySection id="women" title={t("women")} query="woman glasses" />
-      <CategorySection id="children" title={t("kids")} query="kid glasses" />
+      <CategorySection id="Our_Products_Range" title={t("Our_Products")} query="man glasses" />
+      {/* <CategorySection id="women" title={t("women")} query="woman glasses" />
+      <CategorySection id="children" title={t("kids")} query="kid glasses" /> */}
 
       {/* Language Switch */}
       {/* <div style={{ textAlign: "center", margin: "1rem" }}>
