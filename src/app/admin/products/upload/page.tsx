@@ -57,10 +57,14 @@ export default function UploadProductPage() {
       formData.append("category_id", String(Number(category)));
       formData.append("size", size);
       formData.append("language", "english");
-      formData.append("photo", photo); // 🔑 backend expects `photo`
+      formData.append("photo", photo);
 
-      const res = await fetch(`${API.PRODUCTS.CREATE}?token=${token}`, {
+      // ✅ Token in header, not query param
+      const res = await fetch(API.PRODUCTS.CREATE, {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 
@@ -70,7 +74,6 @@ export default function UploadProductPage() {
         alert(`❌ Failed: ${data.message || "Validation error"}`);
       } else {
         alert("✅ Product uploaded successfully!");
-        // reset form
         setName("");
         setDescription("");
         setPrice("");
@@ -115,7 +118,7 @@ export default function UploadProductPage() {
           />
         </div>
 
-        {/* Size (dropdown) */}
+        {/* Size */}
         <div className="col-md-6">
           <label className="form-label">Size *</label>
           <select
@@ -161,7 +164,7 @@ export default function UploadProductPage() {
           ></textarea>
         </div>
 
-        {/* Photo Upload */}
+        {/* Photo */}
         <div className="col-12">
           <label className="form-label">Photo *</label>
           <input
