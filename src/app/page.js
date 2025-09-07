@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { ChevronRight, Star, Zap, Shield, Eye } from "lucide-react";
 
-import Button from "../components/ui/Button";
-import HeroSection from "../components/Home/HeroSection";
-import FeaturedCarousel from "../components/Home/FeaturedCarousel";
-import CategoryGrid from "../components/Home/CategoryGrid";
-import AllProductsSection from "../components/Home/AllProductsSection";
-import ProductModal from "../components/ui/ProductModal"
+import Button from "../app/components/ui/Button";
+import HeroSection from "../app/components/Home/HeroSection";
+import FeaturedCarousel from "../app/components/Home/FeaturedCarousel";
+import CategoryGrid from "../app/components/Home/CategoryGrid";
+import AllProductsSection from "../app/components/Home/AllProductsSection";
+import ProductModal from "../app/components/ui/ProductModal"
 
-import { CATEGORIES, PRODUCTS, FEATURED_PRODUCTS } from "../utils/constant";
+import { CATEGORIES, PRODUCTS, FEATURED_PRODUCTS } from "../app/utils/constant";
 
 export default function Home() {
   const [categories, setCategories] = useState(CATEGORIES);
