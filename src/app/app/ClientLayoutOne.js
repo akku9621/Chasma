@@ -13,7 +13,7 @@ import {
   MapPin 
 } from "lucide-react";
 
-export default function ClientLayout({ children }) {
+export default function ClientLayoutOne({ children }) {
   const pathname = usePathname();
 
   const navigationItems = [
