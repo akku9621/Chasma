@@ -1,13 +1,13 @@
 "use client"
 import React, { useState, useEffect, useCallback } from "react";
-import { PRODUCTS, CATEGORIES } from "@/utils/constant";
+import { PRODUCTS, CATEGORIES } from "../utils/constant";
 import { Search as SearchIcon, Filter, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import Button from "@/components/ui/button";
-import Badge from "@/components/ui/badge";
+import { Input } from "../components/ui/Input.js";
+import Button from "../components/ui/Button.js";
+import Badge from "../components/ui/Badge.js";
 
-import ProductGrid from "@/components/Products/ProductGrid";
-import ProductModal from "@/components/ui/ProductModal";
+import ProductGrid from "../components/Products/ProductGrid";
+import ProductModal from "../components/ui/ProductModal";
 
 export default function Search() {
   const [products, setProducts] = useState(PRODUCTS);

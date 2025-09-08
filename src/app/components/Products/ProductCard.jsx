@@ -1,6 +1,6 @@
 import React from "react";
-import Button from "@/components/ui/button";
-import Badge from "@/components/ui/badge";
+import Button from "../ui/Button";
+import Badge from "../ui/Badge";
 import { Star, ShoppingBag, Eye, Zap } from "lucide-react";
 
 export default function ProductCard({ product, viewMode, onClick }) {

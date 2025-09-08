@@ -1,15 +1,15 @@
 "use client"
 import React, { useState, useEffect, useCallback } from "react";
 import { Search, Filter, Grid, List, SortAsc } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "../components/ui/Input.js";
+import { Button } from "../components/ui/Button.js";
 
-import { PRODUCTS, CATEGORIES } from "@/utils/constant";
+import { PRODUCTS, CATEGORIES } from "../utils/constant";
 
-import ProductGrid from "@/components/Products/ProductGrid";
-import ProductModal from "@/components/ui/ProductModal";
-import CategoryFilter from "@/components/Products/CategoryFilter";
-import SearchHeader from "@/components/Products/SearchHeader";
+import ProductGrid from "../components/Products/ProductGrid";
+import ProductModal from "../components/ui/ProductModal";
+import CategoryFilter from "../components/Products/CategoryFilter";
+import SearchHeader from "../components/Products/SearchHeader";
 
 export default function Products() {
   const [products, setProducts] = useState(PRODUCTS);
