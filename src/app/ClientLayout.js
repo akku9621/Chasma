@@ -1,26 +1,35 @@
-'use client'
+"use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  Home, 
-  Search, 
-  Zap, 
-  Facebook, 
-  Twitter, 
-  Instagram, 
-  Mail, 
-  Phone, 
-  MapPin 
+import {
+  Home,
+  Search,
+  Zap,
+  Facebook,
+  Twitter,
+  Instagram,
+  Mail,
+  Phone,
+  MapPin,
 } from "lucide-react";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
+
+  // ✅ detect if route is /auth/*
+  const isAuthPage = pathname.startsWith("/auth");
 
   const navigationItems = [
     { name: "Home", icon: Home, url: "/" },
     { name: "Search", icon: Search, url: "/search" },
   ];
 
+  // ✅ If /auth/* → return only children (no header/footer/UI wrapper)
+  if (isAuthPage) {
+    return <>{children}</>;
+  }
+
+  // ✅ Else → full UI with header + footer
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <style jsx>{`
@@ -29,24 +38,25 @@ export default function ClientLayout({ children }) {
           --glow-secondary: #06b6d4;
           --glow-accent: #10b981;
         }
-        
         .glass-effect {
           background: rgba(255, 255, 255, 0.1);
           backdrop-filter: blur(10px);
           border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
         .glow-effect {
           box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
         }
-        
         .text-glow {
           text-shadow: 0 0 10px var(--glow-primary);
         }
-        
         .neon-border {
           border: 1px solid;
-          border-image: linear-gradient(45deg, var(--glow-primary), var(--glow-secondary), var(--glow-accent)) 1;
+          border-image: linear-gradient(
+            45deg,
+            var(--glow-primary),
+            var(--glow-secondary),
+            var(--glow-accent)
+          ) 1;
         }
       `}</style>
 
@@ -54,10 +64,7 @@ export default function ClientLayout({ children }) {
       <header className="glass-effect sticky top-0 z-50 border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link
-              href="/"
-              className="flex items-center space-x-2 group"
-            >
+            <Link href="/" className="flex items-center space-x-2 group">
               <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center glow-effect group-hover:scale-110 transition-transform">
                 <Zap className="w-5 h-5 text-white" />
               </div>
@@ -103,7 +110,7 @@ export default function ClientLayout({ children }) {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main */}
       <main className="relative">{children}</main>
 
       {/* Footer */}
@@ -121,26 +128,17 @@ export default function ClientLayout({ children }) {
                 </span>
               </div>
               <p className="text-gray-300 leading-relaxed mb-6">
-                Leading the future of eyewear technology with innovative
-                designs and cutting-edge features.
+                Leading the future of eyewear technology with innovative designs
+                and cutting-edge features.
               </p>
               <div className="flex space-x-4">
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-cyan-400 transition-colors"
-                >
+                <a href="#" className="text-gray-400 hover:text-cyan-400">
                   <Facebook className="w-5 h-5" />
                 </a>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-cyan-400 transition-colors"
-                >
+                <a href="#" className="text-gray-400 hover:text-cyan-400">
                   <Twitter className="w-5 h-5" />
                 </a>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-cyan-400 transition-colors"
-                >
+                <a href="#" className="text-gray-400 hover:text-cyan-400">
                   <Instagram className="w-5 h-5" />
                 </a>
               </div>
@@ -173,7 +171,7 @@ export default function ClientLayout({ children }) {
 
             {/* Support */}
             <div>
-              <h3 className="text-lg font-semibent text-white mb-6 text-glow">
+              <h3 className="text-lg font-semibold text-white mb-6 text-glow">
                 Support
               </h3>
               <ul className="space-y-3">
@@ -225,22 +223,13 @@ export default function ClientLayout({ children }) {
                 © 2024 VisionX. All rights reserved. Built for the future.
               </p>
               <div className="flex space-x-6 mt-4 md:mt-0">
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-cyan-400 text-sm transition-colors"
-                >
+                <a href="#" className="text-gray-400 hover:text-cyan-400 text-sm">
                   Privacy Policy
                 </a>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-cyan-400 text-sm transition-colors"
-                >
+                <a href="#" className="text-gray-400 hover:text-cyan-400 text-sm">
                   Terms of Service
                 </a>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-cyan-400 text-sm transition-colors"
-                >
+                <a href="#" className="text-gray-400 hover:text-cyan-400 text-sm">
                   Cookies
                 </a>
               </div>
