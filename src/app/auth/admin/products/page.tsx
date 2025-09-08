@@ -89,7 +89,6 @@ export default function ProductsPage() {
       size: product.size,
       language: product.language || "hindi",
       is_active: product.is_active ?? true,
-      // image?: you can add a file input later; updateProduct already supports it
     });
   };
 
@@ -97,7 +96,6 @@ export default function ProductsPage() {
     if (!token || !editingProduct) return;
 
     try {
-      // Build a diff against the original product: only send changed fields
       const fd = new FormData();
 
       const fields = [
@@ -115,7 +113,6 @@ export default function ProductsPage() {
         const orig = (editingProduct as any)[key];
 
         if (key === "price" || key === "category_id") {
-          // compare numerically for these fields
           const currNum = curr !== undefined && curr !== null ? Number(curr) : curr;
           const origNum = orig !== undefined && orig !== null ? Number(orig) : orig;
           if (currNum !== undefined && currNum !== origNum) {
@@ -134,21 +131,19 @@ export default function ProductsPage() {
         }
       });
 
-      // If you add a file input named "image" to the modal, this will include it:
       if (formData.image instanceof File) {
         fd.append("image", formData.image);
       }
 
-      // No changes? bail early to avoid 422s from empty/unchanged payloads
       if ([...fd.keys()].length === 0) {
         alert("No changes to save.");
         return;
       }
 
-      const res = await fetch(API.PRODUCTS.UPDATE(editingProduct.id), {
+      const res = await fetch(API.PRODUCTS.UPDATE(String(editingProduct.id)), {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${token}`, // don't set Content-Type with FormData
+          Authorization: `Bearer ${token}`,
         },
         body: fd,
       });
@@ -173,7 +168,7 @@ export default function ProductsPage() {
     if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
-      const res = await fetch(API.PRODUCTS.DELETE(id), {
+      const res = await fetch(API.PRODUCTS.DELETE(String(id)), {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -396,15 +391,6 @@ export default function ProductsPage() {
                   <option value="true">Active</option>
                   <option value="false">Inactive</option>
                 </select>
-                {/* If you add a file input for image later:
-                <input
-                  type="file"
-                  className="form-control mb-2"
-                  onChange={(e) =>
-                    handleFormChange("image", e.target.files ? e.target.files[0] : null)
-                  }
-                />
-                */}
               </div>
               <div className="modal-footer">
                 <button
