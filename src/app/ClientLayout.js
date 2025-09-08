@@ -12,6 +12,7 @@ import {
   Phone,
   MapPin,
 } from "lucide-react";
+import Image from "next/image";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
@@ -64,16 +65,26 @@ export default function ClientLayout({ children }) {
       <header className="glass-effect sticky top-0 z-50 border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2 group">
+            <Link
+              href="/"
+              className="flex items-center space-x-2 group !no-underline hover:!no-underline"
+            >
               <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center glow-effect group-hover:scale-110 transition-transform">
-                <Zap className="w-5 h-5 text-white" />
+                <Image
+                  src="/pictures/logo_en.png"
+                  alt="Logo"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
               </div>
               <span className="text-xl font-bold text-white text-glow">
-                VisionX
+                Jyoti Chashma
               </span>
             </Link>
 
-            <nav className="hidden md:flex items-center space-x-8">
+
+            {/* <nav className="hidden md:flex items-center space-x-8">
               {navigationItems.map((item) => (
                 <Link
                   key={item.name}
@@ -88,7 +99,7 @@ export default function ClientLayout({ children }) {
                   <span className="font-medium">{item.name}</span>
                 </Link>
               ))}
-            </nav>
+            </nav> */}
 
             {/* Mobile Menu */}
             <div className="md:hidden flex items-center space-x-4">
@@ -124,7 +135,7 @@ export default function ClientLayout({ children }) {
                   <Zap className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold text-white text-glow">
-                  VisionX
+                  Jyoti Chashma
                 </span>
               </div>
               <p className="text-gray-300 leading-relaxed mb-6">
@@ -202,15 +213,15 @@ export default function ClientLayout({ children }) {
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <Mail className="w-5 h-5 text-cyan-400" />
-                  <span className="text-gray-300">hello@visionx.com</span>
+                  <span className="text-gray-300">jyotichashma@gmail.com</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="w-5 h-5 text-cyan-400" />
-                  <span className="text-gray-300">+1 (555) 123-4567</span>
+                  <span className="text-gray-300">+918299562428</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <MapPin className="w-5 h-5 text-cyan-400" />
-                  <span className="text-gray-300">San Francisco, CA</span>
+                  <span className="text-gray-300">Zamania Railway Station, Ghazipur, UP, India</span>
                 </div>
               </div>
             </div>
@@ -220,7 +231,7 @@ export default function ClientLayout({ children }) {
           <div className="border-t border-white/20 mt-12 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-gray-400 text-sm">
-                © 2024 VisionX. All rights reserved. Built for the future.
+                © 2025 Jyoti Chashma. All rights reserved. Built for the future.
               </p>
               <div className="flex space-x-6 mt-4 md:mt-0">
                 <a href="#" className="text-gray-400 hover:text-cyan-400 text-sm">

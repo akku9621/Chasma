@@ -21,7 +21,7 @@ const ProductModal = ({ product, isOpen, onClose }) => {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-gray-400">Brand:</span>
-                <span className="text-white ml-2">VisionX</span>
+                <span className="text-white ml-2">Jyoti Chashma</span>
               </div>
               <div>
                 <span className="text-gray-400">Model:</span>

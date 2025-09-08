@@ -7,14 +7,14 @@ export default function HeroSection() {
     return (
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Hero Background */}
-        <div className="absolute inset-0 z-0">
+        {/* <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?q=80&w=2070"
             alt="Futuristic goggles"
             className="w-full h-full object-cover opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-purple-900/50 to-slate-900/80"></div>
-        </div>
+        </div> */}
   
         {/* Floating Elements */}
         <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-cyan-400 rounded-full animate-ping"></div>
