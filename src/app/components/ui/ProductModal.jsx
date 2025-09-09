@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, MessageCircle } from 'lucide-react';
 
@@ -13,92 +12,66 @@ const ProductModal = ({ product, isOpen, onClose }) => {
     switch (activeTab) {
       case 'Overview':
         return (
-          <div className="space-y-4">
+          <div className="space-y-2 text-xs sm:text-sm">
             <p className="text-gray-300 leading-relaxed">
-              Experience cutting-edge eyewear technology with our premium collection. 
-              Designed for the modern individual who demands both style and performance.
+              Experience cutting-edge eyewear technology with our premium collection.
             </p>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-gray-400">Brand:</span>
-                <span className="text-white ml-2">VisionX</span>
+                <span className="text-gray-400">Brand:</span>{' '}
+                <span className="text-white ml-1">Jyoti Chashma</span>
               </div>
               <div>
-                <span className="text-gray-400">Model:</span>
-                <span className="text-white ml-2">{product.name}</span>
+                <span className="text-gray-400">Model:</span>{' '}
+                <span className="text-white ml-1">{product.name}</span>
               </div>
               <div>
-                <span className="text-gray-400">Category:</span>
-                <span className="text-white ml-2">{product.category || 'Premium Eyewear'}</span>
+                <span className="text-gray-400">Category:</span>{' '}
+                <span className="text-white ml-1">
+                  {product.category || 'Premium Eyewear'}
+                </span>
               </div>
               <div>
-                <span className="text-gray-400">Availability:</span>
-                <span className="text-green-400 ml-2">In Stock</span>
+                <span className="text-gray-400">Availability:</span>{' '}
+                <span className="text-green-400 ml-1">In Stock</span>
               </div>
             </div>
           </div>
         );
       case 'Specs':
         return (
-          <div className="space-y-4">
-            <div className="grid gap-3 text-sm">
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400">Frame Material</span>
-                <span className="text-white">Titanium Alloy</span>
+          <div className="grid gap-1 text-xs sm:text-sm">
+            {[
+              ['Frame', 'Titanium Alloy'],
+              ['Lens', 'Anti-Reflective'],
+              ['UV', '100% UV400'],
+              ['Weight', '28g'],
+            ].map(([label, value], idx) => (
+              <div
+                key={idx}
+                className="flex justify-between border-b border-gray-700 py-1"
+              >
+                <span className="text-gray-400">{label}</span>
+                <span className="text-white">{value}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400">Lens Type</span>
-                <span className="text-white">Anti-Reflective HD</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400">UV Protection</span>
-                <span className="text-white">100% UV400</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400">Weight</span>
-                <span className="text-white">28g</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400">Dimensions</span>
-                <span className="text-white">145mm x 52mm</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400">Water Resistance</span>
-                <span className="text-white">IPX6</span>
-              </div>
-            </div>
+            ))}
           </div>
         );
       case 'Features':
         return (
-          <div className="space-y-4">
-            <ul className="space-y-3 text-gray-300 text-sm sm:text-base">
-              <li className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
-                <span>Advanced anti-fog coating for crystal clear vision</span>
+          <ul className="space-y-1 text-gray-300 text-xs sm:text-sm">
+            {[
+              'Anti-fog coating',
+              'Photochromic lenses',
+              'Ergonomic design',
+              'Scratch-resistant',
+            ].map((feature, idx) => (
+              <li key={idx} className="flex items-start space-x-2">
+                <div className="w-2 h-2 bg-cyan-400 rounded-full mt-1"></div>
+                <span>{feature}</span>
               </li>
-              <li className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
-                <span>Photochromic lenses adapt to lighting conditions</span>
-              </li>
-              <li className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
-                <span>Ergonomic design for all-day comfort</span>
-              </li>
-              <li className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
-                <span>Scratch-resistant and impact-proof construction</span>
-              </li>
-              <li className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
-                <span>Adjustable nose pads and temple tips</span>
-              </li>
-              <li className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
-                <span>Premium microfiber cleaning cloth included</span>
-              </li>
-            </ul>
-          </div>
+            ))}
+          </ul>
         );
       default:
         return null;
@@ -106,92 +79,77 @@ const ProductModal = ({ product, isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-start justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
-      <div className="relative w-full max-w-4xl mx-4 bg-gray-900 bg-opacity-95 backdrop-blur-md rounded-2xl border border-gray-700 shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-sm sm:max-w-lg bg-gray-900 bg-opacity-95 backdrop-blur-md 
+        rounded-2xl border border-gray-700 shadow-2xl overflow-hidden mx-3 mt-[10vh]">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 bg-gray-800 bg-opacity-80 hover:bg-opacity-100 rounded-lg transition-all group"
+          className="absolute top-2 right-2 p-2 bg-gray-800 rounded-lg hover:bg-gray-700"
         >
-          <X className="w-5 h-5 text-gray-400 group-hover:text-white" />
+          <X className="w-4 h-4 text-gray-400" />
         </button>
 
-        <div className="flex flex-col lg:flex-row">
+        <div className="flex flex-col p-4 space-y-3">
           {/* Product Image */}
-          <div className="lg:w-1/2 p-8 flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
-            <div className="relative">
-              <img
-                src={product.image || "/api/placeholder/400/300"}
-                alt={product.name}
-                className="w-full h-80 object-cover rounded-xl"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl" />
+          <div className="flex justify-center">
+            <img
+              src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070"
+              alt={product.name}
+              className="w-full max-h-48 object-contain rounded-lg bg-gray-800"
+            />
+          </div>
+
+          {/* Product Info */}
+          <h2 className="text-lg font-bold text-white truncate">{product.name}</h2>
+          <p className="text-sm text-gray-400 truncate">
+            {product.category || 'Eyewear'}
+          </p>
+
+          {/* Price */}
+          <div className="flex items-center space-x-2">
+            <span className="text-xl font-bold text-cyan-400">
+              ${product.price || '1200'}
+            </span>
+            <span className="text-sm text-gray-500 line-through">
+              ${product.originalPrice || '1500'}
+            </span>
+          </div>
+
+          {/* Tabs */}
+          <div>
+            <div className="flex bg-gray-800 rounded-lg p-1 mb-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex-1 text-xs px-2 py-1 rounded-md ${
+                    activeTab === tab
+                      ? 'bg-cyan-600 text-white'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="bg-gray-800 bg-opacity-40 rounded-lg p-2">
+              {renderTabContent()}
             </div>
           </div>
 
-          {/* Product Details */}
-          <div className="lg:w-1/2 p-8 space-y-6">
-            {/* Product Title */}
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-2 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                {product.name || 'Stylish female'}
-              </h2>
-              <p className="text-gray-400 text-sm">
-                {product.category || 'female'}
-              </p>
-            </div>
-
-            {/* Price */}
-            <div className="flex items-center space-x-4">
-              <span className="text-4xl font-bold text-cyan-400">
-                ${product.price || '1200'}
-              </span>
-              <span className="text-xl text-gray-500 line-through">
-                ${product.originalPrice || '1500'}
-              </span>
-              <span className="px-3 py-1 bg-green-600 text-white text-sm rounded-full font-medium">
-                20% OFF
-              </span>
-            </div>
-
-            {/* Tabs */}
-            <div className="space-y-4">
-              <div className="flex bg-gray-800 bg-opacity-50 rounded-xl p-1">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`flex-1 px-6 py-3 text-sm font-medium rounded-lg transition-all ${
-                      activeTab === tab
-                        ? 'bg-gradient-to-r from-purple-600 to-cyan-600 text-white shadow-lg'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-700 hover:bg-opacity-50'
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-
-              {/* Tab Content */}
-              <div className="min-h-[200px] p-4 bg-gray-800 bg-opacity-30 rounded-xl">
-                <p className="text-gray-400 text-sm mb-4">{product.category || 'female'}</p>
-                {renderTabContent()}
-              </div>
-            </div>
-
-            {/* Order Button */}
-            <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-lg hover:shadow-green-600/25">
-              <MessageCircle className="w-5 h-5" />
-              <span>Order via WhatsApp</span>
-            </button>
-          </div>
+          {/* Order Button */}
+          <button className="w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2 rounded-lg flex items-center justify-center space-x-1">
+            <MessageCircle className="w-4 h-4" />
+            <span>Order via WhatsApp</span>
+          </button>
         </div>
       </div>
     </div>

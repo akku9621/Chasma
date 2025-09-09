@@ -124,7 +124,7 @@ export default function Home() {
         {/* Features Section */}
         <section className="text-center">
           <h2 className="text-4xl font-bold text-white mb-16 text-glow">
-            Why Choose VisionX?
+            Why Choose Jyoti Chashma?
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[

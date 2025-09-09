@@ -46,7 +46,7 @@ export const CATEGORIES = [
 export const PRODUCTS = [
     {
       id: 1,
-      name: "VisionX Pro Gaming",
+      name: "Jyoti Chashma Pro Gaming",
       description: "Ultimate gaming goggles with advanced blue light filtering and anti-glare technology for extended gaming sessions.",
       price: 299.99,
       original_price: 349.99,
@@ -185,7 +185,7 @@ export const PRODUCTS = [
 export const FEATURED_PRODUCTS = [
   {
     id: 1,
-    name: "VisionX Pro Gaming",
+    name: "Jyoti Chashma Pro Gaming",
     description: "Ultimate gaming goggles with advanced blue light filtering and anti-glare technology for extended gaming sessions.",
     price: 299.99,
     original_price: 349.99,
