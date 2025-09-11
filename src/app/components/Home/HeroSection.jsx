@@ -31,9 +31,9 @@ export default function HeroSection() {
           </div>
           
           <h1 className="text-6xl md:text-8xl font-bold text-white mb-8 leading-tight">
-            <span className="block text-glow">Vision</span>
+            <span className="block text-glow">Jyoti</span>
             <span className="block bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              Redefined
+              Chashma
             </span>
           </h1>
           
@@ -42,7 +42,7 @@ export default function HeroSection() {
             collection of smart goggles and advanced vision systems.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          {/* <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link href="/">
               <Button 
                 size="lg" 
@@ -59,7 +59,7 @@ export default function HeroSection() {
             >
               Watch Demo
             </Button>
-          </div>
+          </div> */}
         </div>
   
         {/* Scroll Indicator */}
