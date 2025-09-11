@@ -160,28 +160,20 @@ export default function ClientLayout({ children }) {
               <h3 className="text-lg font-semibold text-white mb-6 text-glow">
                 Quick Links
               </h3>
-              <ul className="space-y-3">
-                {[
-                  "Gaming Goggles",
-                  "Sport Goggles",
-                  "Safety Goggles",
-                  "Smart Goggles",
-                  "Swimming Goggles",
-                ].map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="text-gray-300 hover:text-cyan-400 transition-colors"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden" }}>
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7379741.471414846!2d74.38286995000004!3d25.425242168193165!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x398e07356a7d4afd%3A0xd9162650f638677e!2sJYOTI%20NETRA%20SEVA%20%26%20JYOTI%20CHASHMA%20SAGAR!5e0!3m2!1sen!2sin!4v1757580173330!5m2!1sen!2sin"
+                  style={{ border: 0, position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
+
             </div>
 
             {/* Support */}
-            <div>
+            {/* <div>
               <h3 className="text-lg font-semibold text-white mb-6 text-glow">
                 Support
               </h3>
@@ -203,7 +195,7 @@ export default function ClientLayout({ children }) {
                   </li>
                 ))}
               </ul>
-            </div>
+            </div> */}
 
             {/* Contact */}
             <div>
@@ -233,7 +225,7 @@ export default function ClientLayout({ children }) {
               <p className="text-gray-400 text-sm">
                 © 2025 Jyoti Chashma. All rights reserved. Built for the future.
               </p>
-              <div className="flex space-x-6 mt-4 md:mt-0">
+              {/* <div className="flex space-x-6 mt-4 md:mt-0">
                 <a href="#" className="text-gray-400 hover:text-cyan-400 text-sm">
                   Privacy Policy
                 </a>
@@ -243,7 +235,7 @@ export default function ClientLayout({ children }) {
                 <a href="#" className="text-gray-400 hover:text-cyan-400 text-sm">
                   Cookies
                 </a>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
