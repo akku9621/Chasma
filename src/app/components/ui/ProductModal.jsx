@@ -1,39 +1,132 @@
+"use client";
 import React, { useEffect, useState } from "react";
-import { X, MessageCircle, Share2 } from "lucide-react";
+import { X, MessageCircle, Share2, Eye } from "lucide-react";
+import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
+import "@tensorflow/tfjs-backend-webgl";
+
+// 1. Load the model outside the component to prevent re-loading
+let faceMeshModel = null;
+const loadModel = async () => {
+  if (!faceMeshModel) {
+    faceMeshModel = await faceLandmarksDetection.load(
+      faceLandmarksDetection.SupportedPackages.mediapipeFacemesh
+    );
+  }
+};
 
 const ProductModal = ({ product, isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState("Overview");
-  const [visible, setVisible] = useState(false); // controls fade/scale
+  const [visible, setVisible] = useState(false);
+  const [showTryOn, setShowTryOn] = useState(false);
+  const [modelLoading, setModelLoading] = useState(false);
 
   useEffect(() => {
-    // when modal mounts, trigger the enter animation
     if (isOpen && product) {
-      // small delay so transition runs reliably
       const t = setTimeout(() => setVisible(true), 10);
       return () => clearTimeout(t);
     }
-    return;
   }, [isOpen, product]);
+
+  useEffect(() => {
+    let stream;
+    let animationFrameId;
+    const video = document.getElementById("tryon-video");
+    const glasses = document.getElementById("glasses-overlay");
+
+    const setupTryOn = async () => {
+      // Show loading state while the model loads for the first time
+      setModelLoading(true);
+      await loadModel();
+      setModelLoading(false);
+
+      try {
+        // Start webcam
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: false,
+        });
+        if (video) video.srcObject = stream;
+
+        const detectFace = async () => {
+          if (video.readyState >= 2) {
+            const predictions = await faceMeshModel.estimateFaces({
+              input: video,
+            });
+            if (predictions.length > 0) {
+              const keypoints = predictions[0].scaledMesh;
+
+              // Use main eye landmarks for broader detection
+              const leftEye = keypoints[33];
+              const rightEye = keypoints[263];
+
+              // Calculate the center point between the eyes
+              const eyeCenterX = (leftEye[0] + rightEye[0]) / 2;
+              const eyeCenterY = (leftEye[1] + rightEye[1]) / 2;
+
+              // Calculate the distance between the eyes
+              const eyeDistance = Math.hypot(
+                rightEye[0] - leftEye[0],
+                rightEye[1] - leftEye[1]
+              );
+
+              // --- MANUAL ADJUSTMENT VARIABLES ---
+              // Adjust these values to perfectly align the glasses
+              const vertical_offset = 50; // Move glasses down by 50 pixels
+              const horizontal_offset = -89; // Move glasses to the left by 79 pixels
+              const scale_multiplier = 2.2; // Adjusted for a better frame size according to the face
+
+              // Position, scale, and rotate glasses
+              if (glasses) {
+                glasses.style.position = "absolute";
+                glasses.style.left = `${eyeCenterX + horizontal_offset}px`; // Apply horizontal offset
+                glasses.style.top = `${eyeCenterY + vertical_offset}px`; // Apply vertical offset
+                glasses.style.width = `${eyeDistance * scale_multiplier}px`;
+                glasses.style.transform = `translate(-50%, -50%) rotate(${
+                  Math.atan2(
+                    rightEye[1] - leftEye[1],
+                    rightEye[0] - leftEye[0]
+                  ) *
+                  (180 / Math.PI)
+                }deg)`;
+              }
+            }
+          }
+          animationFrameId = requestAnimationFrame(detectFace);
+        };
+        detectFace();
+      } catch (err) {
+        console.error("Webcam or model error:", err);
+      }
+    };
+
+    if (showTryOn && typeof window !== "undefined") {
+      setupTryOn();
+    }
+
+    return () => {
+      // Cleanup
+      if (stream) stream.getTracks().forEach((t) => t.stop());
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [showTryOn]);
 
   if (!isOpen || !product) return null;
 
   const tabs = ["Overview"];
+  const categoryMap = { 1: "Men", 2: "Women", 3: "Children" };
 
-  const categoryMap = {
-    1: "Men",
-    2: "Women",
-    3: "Children",
-  };
-
-  const buildWhatsAppMessage = () => {
-    return `*${product.name}*
+  const buildWhatsAppMessage = () =>
+    `*${product.name}*
 Brand: Jyoti Chashma
 Category: ${categoryMap[product.category_id] || "Eyewear"}
 Price: ₹${product.price}
-Description: ${product.description || "Premium eyewear with latest design."}
-
-Image: ${product.image_url || "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070"}`;
-  };
+Description: ${
+      product.description || "Premium eyewear with latest design."
+    }
+Image: ${
+      product.image_url ||
+      "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070"
+    }`;
 
   const handleShareWithFriends = () => {
     const text = encodeURIComponent(buildWhatsAppMessage());
@@ -86,14 +179,14 @@ Image: ${product.image_url || "https://images.unsplash.com/photo-1542751371-adc3
       className="fixed inset-0 z-[9999] flex items-start justify-center"
       aria-hidden={false}
     >
-      {/* transparent backdrop (keeps page visible). clicking it closes modal */}
+      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-transparent"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Modal container - uses simple transition (no custom keyframes) */}
+      {/* Modal container */}
       <div
         role="dialog"
         aria-modal="true"
@@ -104,7 +197,7 @@ Image: ${product.image_url || "https://images.unsplash.com/photo-1542751371-adc3
             : "opacity-0 translate-y-3 scale-95")
         }
       >
-        {/* Close Button (top-right of modal) */}
+        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-2 p-2 bg-gray-800 rounded-lg hover:bg-gray-700 z-10"
@@ -126,7 +219,7 @@ Image: ${product.image_url || "https://images.unsplash.com/photo-1542751371-adc3
             />
           </div>
 
-          {/* Product Info row (Name, Category, Price left | Share right) */}
+          {/* Product Info */}
           <div className="flex items-start justify-between w-full">
             <div className="flex flex-col">
               <h2 className="text-base font-bold text-white">{product.name}</h2>
@@ -169,14 +262,53 @@ Image: ${product.image_url || "https://images.unsplash.com/photo-1542751371-adc3
             </div>
           </div>
 
-          {/* Order Button */}
-          <button
-            onClick={handleOrderOnWhatsApp}
-            className="w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2 rounded-lg flex items-center justify-center space-x-1"
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span>Order via WhatsApp</span>
-          </button>
+          {/* Buttons */}
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setShowTryOn(!showTryOn)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded-lg flex items-center justify-center space-x-1"
+            >
+              <Eye className="w-4 h-4" />
+              <span>Try On</span>
+            </button>
+            <button
+              onClick={handleOrderOnWhatsApp}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm py-2 rounded-lg flex items-center justify-center space-x-1"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>WhatsApp</span>
+            </button>
+          </div>
+
+          {/* Virtual Try-On overlay */}
+          {showTryOn && (
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-90 p-4">
+              {modelLoading && (
+                <div className="absolute inset-0 flex items-center justify-center text-white text-lg">
+                  Loading Virtual Try-On...
+                </div>
+              )}
+              <button
+                onClick={() => setShowTryOn(false)}
+                className="absolute top-2 right-2 p-2 bg-gray-800 rounded-lg hover:bg-gray-700 z-10"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+              <video
+                id="tryon-video"
+                autoPlay
+                muted
+                playsInline
+                className="w-full h-full rounded-lg object-cover"
+              />
+              <img
+                id="glasses-overlay"
+                src="/pictures/image.png"
+                alt="glasses overlay"
+                className="absolute pointer-events-none"
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
