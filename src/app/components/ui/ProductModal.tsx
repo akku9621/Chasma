@@ -42,17 +42,24 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
   }, [isOpen, product]);
 
   // --- WhatsApp share ---
-  const categoryMap = { 1: "Men", 2: "Women", 3: "Children" };
+  const categoryMap: Record<number, string> = { 
+    1: "Men", 
+    2: "Women", 
+    3: "Children" 
+  };
+
   const buildWhatsAppMessage = () =>
     `*${product.name}*\nBrand: Jyoti Chashma\nCategory: ${
       categoryMap[product.category_id] || "Eyewear"
     }\nPrice: ₹${product.price}\nDescription: ${
       product.description || "Premium eyewear with latest design."
     }\nImage: ${product.image_url || ""}`;
+
   const handleShareWithFriends = () => {
     const text = encodeURIComponent(buildWhatsAppMessage());
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
+
   const handleOrderOnWhatsApp = () => {
     const text = encodeURIComponent(buildWhatsAppMessage());
     window.open(`https://wa.me/918299562428?text=${text}`, "_blank");
