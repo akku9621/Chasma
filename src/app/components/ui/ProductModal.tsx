@@ -45,7 +45,8 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
   const categoryMap: Record<number, string> = { 
     1: "Men", 
     2: "Women", 
-    3: "Children" 
+    3: "Children",
+    4: "Offer" 
   };
 
   const buildWhatsAppMessage = () =>
