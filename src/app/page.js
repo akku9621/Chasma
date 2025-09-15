@@ -9,6 +9,13 @@ import ProductModal from "../app/components/ui/ProductModal";
 
 import { API } from "../services/api";
 
+const CATEGORY_MAP = {
+  1: "Men",
+  2: "Women",
+  3: "Children",
+  4: "Offer",
+};
+
 export default function Home() {
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -111,6 +118,10 @@ export default function Home() {
             alt={product.name}
             className="w-full h-36 sm:h-48 object-cover rounded-xl mb-3 sm:mb-4 transition-transform duration-500 group-hover:scale-110"
           />
+          {/* Category Badge added here */}
+          <div className="absolute top-2 right-2 bg-purple-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
+            {CATEGORY_MAP[product.category_id]}
+          </div>
         </div>
         <div className="flex-grow flex flex-col items-center">
           <h3 className="text-sm sm:text-lg font-bold text-white mb-1 line-clamp-2">
@@ -362,20 +373,17 @@ export default function Home() {
               {
                 icon: Shield,
                 title: "Advanced Protection",
-                description:
-                  "Military-grade UV protection and impact resistance",
+                description: "Military-grade UV protection and impact resistance",
               },
               {
                 icon: Eye,
                 title: "Crystal Clear Vision",
-                description:
-                  "Anti-fog technology with HD clarity in any condition",
+                description: "Anti-fog technology with HD clarity in any condition",
               },
               {
                 icon: Zap,
                 title: "Smart Features",
-                description:
-                  "Integrated tech for the ultimate performance experience",
+                description: "Integrated tech for the ultimate performance experience",
               },
             ].map((feature, index) => (
               <div

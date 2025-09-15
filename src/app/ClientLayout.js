@@ -102,7 +102,7 @@ export default function ClientLayout({ children }) {
             </nav> */}
 
             {/* Mobile Menu */}
-            <div className="md:hidden flex items-center space-x-4">
+            {/* <div className="md:hidden flex items-center space-x-4">
               {navigationItems.map((item) => (
                 <Link
                   key={item.name}
@@ -116,7 +116,7 @@ export default function ClientLayout({ children }) {
                   <item.icon className="w-5 h-5" />
                 </Link>
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
       </header>

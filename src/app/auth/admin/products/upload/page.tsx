@@ -25,6 +25,7 @@ export default function UploadProductPage() {
       { id: 1, name: "Men" },
       { id: 2, name: "Women" },
       { id: 3, name: "Children" },
+      { id: 4, name: "Offer" },
     ]);
   }, []);
 
