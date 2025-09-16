@@ -54,7 +54,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
       categoryMap[product.category_id] || "Eyewear"
     }\nPrice: ₹${product.price}\nDescription: ${
       product.description || "Premium eyewear with latest design."
-    }\nImage: ${product.image_url || ""}`;
+    }\nSizes: ${product.size || "Standard"}\nImage: ${product.image_url || ""}`;
 
   const handleShareWithFriends = () => {
     const text = encodeURIComponent(buildWhatsAppMessage());
@@ -73,8 +73,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
         return (
           <div className="space-y-2 text-xs sm:text-sm">
             <p className="text-gray-300 leading-relaxed">
-              {product.description ||
-                "Experience cutting-edge eyewear technology with our premium collection."}
+              {product.description || "Experience cutting-edge eyewear technology with our premium collection."}
             </p>
             <div className="grid grid-cols-2 gap-2">
               <div>
@@ -87,14 +86,18 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
               </div>
               <div>
                 <span className="text-gray-400">Category:</span>{" "}
-                <span className="text-white ml-1">
-                  {categoryMap[product.category_id] || "Premium Eyewear"}
-                </span>
+                <span className="text-white ml-1">{categoryMap[product.category_id] || "Premium Eyewear"}</span>
               </div>
               <div>
                 <span className="text-gray-400">Availability:</span>{" "}
                 <span className="text-green-400 ml-1">In Stock</span>
               </div>
+              {product.size && (
+                <div className="col-span-2">
+                  <span className="text-gray-400">Sizes:</span>{" "}
+                  <span className="text-white ml-1">{product.size}</span>
+                </div>
+              )}
             </div>
           </div>
         );
@@ -147,8 +150,8 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
         const video = videoRef.current!;
         const canvas = canvasRef.current!;
         const ctx = canvas.getContext("2d")!;
-        canvas.width = 480;
-        canvas.height = 360;
+        canvas.width = 640; // bigger canvas
+        canvas.height = 480;
 
         const faceMesh = new FaceMeshClass({
           locateFile: (file: string) =>
@@ -270,12 +273,8 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
           <div className="flex items-start justify-between w-full">
             <div className="flex flex-col">
               <h2 className="text-base font-bold text-white">{product.name}</h2>
-              <p className="text-xs text-gray-400">
-                {categoryMap[product.category_id] || "Eyewear"}
-              </p>
-              <span className="text-lg font-bold text-cyan-400">
-                ₹{product.price ?? "1200"}
-              </span>
+              <p className="text-xs text-gray-400">{categoryMap[product.category_id] || "Eyewear"}</p>
+              <span className="text-lg font-bold text-cyan-400">₹{product.price ?? "1200"}</span>
             </div>
 
             <button
@@ -295,18 +294,14 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`flex-1 text-xs px-2 py-1 rounded-md ${
-                    activeTab === tab
-                      ? "bg-cyan-600 text-white"
-                      : "text-gray-400 hover:text-white"
+                    activeTab === tab ? "bg-cyan-600 text-white" : "text-gray-400 hover:text-white"
                   }`}
                 >
                   {tab}
                 </button>
               ))}
             </div>
-            <div className="bg-gray-800 bg-opacity-40 rounded-lg p-2">
-              {renderTabContent()}
-            </div>
+            <div className="bg-gray-800 bg-opacity-40 rounded-lg p-2">{renderTabContent()}</div>
           </div>
 
           {/* Buttons */}
@@ -329,20 +324,20 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
         </div>
       </div>
 
-      {/* Virtual Try-On Modal (compact with cross button) */}
+      {/* Virtual Try-On Modal (bigger) */}
       {showTryOn && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-80 p-4">
-          <div className="relative bg-gray-900 p-4 rounded-xl shadow-xl max-w-md w-full flex flex-col items-center">
+          <div className="relative bg-gray-900 p-4 rounded-xl shadow-xl max-w-lg w-full flex flex-col items-center">
             {vtLoading && <div className="text-white text-sm">Starting camera…</div>}
             {vtError && <div className="text-red-500">{vtError}</div>}
 
             <video ref={videoRef} className="hidden" playsInline muted />
             <canvas
               ref={canvasRef}
-              className="rounded-lg w-full max-h-60 sm:max-h-80 mx-auto"
+              className="rounded-lg w-full max-h-[500px] sm:max-h-[600px] mx-auto"
             />
 
-            {/* Cross button inside modal */}
+            {/* Close button */}
             <button
               className="absolute top-2 right-2 bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-lg"
               onClick={() => setShowTryOn(false)}
