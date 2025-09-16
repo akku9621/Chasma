@@ -89,24 +89,28 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [allProducts]);
 
-  // Smooth, seamless auto-scroller for Offer section (timestamp-based)
+  // Smooth, seamless auto-scroller for Offer section (iOS compatible)
   useEffect(() => {
     const container = offerScrollRef.current;
     if (!container) return;
     const products = allProducts.filter((p) => p.category_id === 4);
     if (!products || products.length === 0) return;
 
+    // iOS smooth scrolling
+    container.style.scrollBehavior = "auto";
+    container.style.WebkitOverflowScrolling = "touch";
+
     let rafId = null;
     let running = true;
-    const speed = 40; // pixels per second (adjust for smoothness)
+    const speed = 40; // pixels per second
     let lastTime = performance.now();
 
     const step = (time) => {
       if (!running || !container) return;
-      const delta = (time - lastTime) / 1000; // seconds
+      const delta = (time - lastTime) / 1000;
       lastTime = time;
 
-      container.scrollLeft += speed * delta;
+      container.scrollBy({ left: speed * delta, behavior: "auto" });
 
       const halfWidth = container.scrollWidth / 2;
       if (container.scrollLeft >= halfWidth) {
@@ -230,7 +234,7 @@ export default function Home() {
 
         <div
           ref={offerScrollRef}
-          className="flex gap-6 overflow-x-auto pb-4"
+          className="flex gap-6 overflow-x-auto pb-4 no-scrollbar"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -243,7 +247,7 @@ export default function Home() {
           ))}
         </div>
         <style jsx>{`
-          div::-webkit-scrollbar {
+          .no-scrollbar::-webkit-scrollbar {
             display: none;
           }
         `}</style>
