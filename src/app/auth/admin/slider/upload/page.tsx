@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { API } from "@/services/api"; // make sure API.CAROUSELS paths are added here
+import { API } from "@/services/api"; // ✅ make sure API.CAROUSELS is set up
 
 interface Carousel {
   id: number;
@@ -16,7 +16,7 @@ interface Carousel {
   is_active: boolean;
 }
 
-export default function CarouselPage() {
+const CarouselPage: React.FC = () => {
   const [carousels, setCarousels] = useState<Carousel[]>([]);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
@@ -28,6 +28,7 @@ export default function CarouselPage() {
 
   const token = Cookies.get("token");
 
+  // ✅ fetch
   const fetchCarousels = async () => {
     if (!token) {
       alert("❌ You are not logged in.");
@@ -41,7 +42,7 @@ export default function CarouselPage() {
         size: String(size),
       });
 
-      const res = await fetch(`${API.CAROUSELS.GET_ALL}?${params.toString()}`, {
+      const res = await fetch(`${API.CAROUSELS.GET_ALL}?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -51,7 +52,6 @@ export default function CarouselPage() {
         return;
       }
 
-      // ✅ Handle both plain array and paginated response
       if (Array.isArray(data)) {
         setCarousels(data);
         setTotalPages(1);
@@ -68,15 +68,16 @@ export default function CarouselPage() {
 
   useEffect(() => {
     fetchCarousels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, size]);
 
+  // ✅ helpers
   const handleFormChange = (key: string, value: any) => {
     setFormData((prev: any) => ({ ...prev, [key]: value }));
   };
 
   const createCarousel = async () => {
     if (!token) return;
-
     try {
       const fd = new FormData();
       fd.append("name", formData.name || "");
@@ -89,9 +90,8 @@ export default function CarouselPage() {
         body: fd,
       });
 
-      const result = await res.json();
       if (!res.ok) {
-        console.error("Create failed:", result);
+        console.error("Create failed");
         alert("❌ Failed to create carousel.");
       } else {
         alert("✅ Carousel created successfully.");
@@ -121,9 +121,8 @@ export default function CarouselPage() {
         body: JSON.stringify(payload),
       });
 
-      const result = await res.json();
       if (!res.ok) {
-        console.error("Update failed:", result);
+        console.error("Update failed");
         alert("❌ Failed to update carousel.");
       } else {
         alert("✅ Carousel updated successfully.");
@@ -137,7 +136,6 @@ export default function CarouselPage() {
 
   const deleteCarousel = async (id: number) => {
     if (!token) return;
-
     if (!confirm("Are you sure you want to delete this carousel?")) return;
 
     try {
@@ -150,13 +148,6 @@ export default function CarouselPage() {
         alert("✅ Carousel deleted successfully.");
         fetchCarousels();
       } else {
-        let data = null;
-        try {
-          data = await res.json();
-        } catch {
-          // no body
-        }
-        console.error("Delete failed:", data);
         alert("❌ Failed to delete carousel.");
       }
     } catch (err) {
@@ -164,19 +155,19 @@ export default function CarouselPage() {
     }
   };
 
-  // ✅ Separate video and text descriptions
-  const videoCarousels = carousels.filter(
-    (c) => c.description && c.description.trim().startsWith("<iframe")
+  // ✅ separate video/text
+  const videoCarousels = carousels.filter((c) =>
+    c.description?.trim().startsWith("<iframe")
   );
   const textCarousels = carousels.filter(
-    (c) => !c.description || !c.description.trim().startsWith("<iframe")
+    (c) => !c.description?.trim().startsWith("<iframe")
   );
 
   return (
     <div className="container">
       <h2 className="fw-bold mb-4">🎞️ Carousels</h2>
 
-      {/* Upload Form */}
+      {/* form */}
       <div className="card mb-4">
         <div className="card-body">
           <h5 className="card-title">Add New Carousel</h5>
@@ -196,7 +187,7 @@ export default function CarouselPage() {
             type="file"
             className="form-control mb-2"
             onChange={(e) =>
-              handleFormChange("image", e.target.files ? e.target.files[0] : null)
+              handleFormChange("image", e.target.files?.[0] || null)
             }
           />
           <button className="btn btn-success" onClick={createCarousel}>
@@ -205,11 +196,11 @@ export default function CarouselPage() {
         </div>
       </div>
 
+      {/* tables */}
       {loading ? (
         <p>Loading...</p>
       ) : (
         <>
-          {/* 🖼️ Text Description Table */}
           <h4 className="mt-4">📝 Text Carousels</h4>
           {textCarousels.length === 0 ? (
             <p className="text-muted">No text carousels found.</p>
@@ -235,12 +226,9 @@ export default function CarouselPage() {
                           <img
                             src={`${c.image_folder}/${c.image_path}`}
                             alt={c.name}
-                            style={{
-                              width: "80px",
-                              height: "60px",
-                              objectFit: "cover",
-                            }}
-                            className="rounded"
+                            width="80"
+                            height="60"
+                            style={{ objectFit: "cover" }}
                           />
                         ) : (
                           "No image"
@@ -276,7 +264,6 @@ export default function CarouselPage() {
             </div>
           )}
 
-          {/* 🎥 Video Description Table */}
           <h4 className="mt-4">🎥 Video Carousels</h4>
           {videoCarousels.length === 0 ? (
             <p className="text-muted">No video carousels found.</p>
@@ -302,12 +289,9 @@ export default function CarouselPage() {
                           <img
                             src={`${c.image_folder}/${c.image_path}`}
                             alt={c.name}
-                            style={{
-                              width: "80px",
-                              height: "60px",
-                              objectFit: "cover",
-                            }}
-                            className="rounded"
+                            width="80"
+                            height="60"
+                            style={{ objectFit: "cover" }}
                           />
                         ) : (
                           "No image"
@@ -349,7 +333,7 @@ export default function CarouselPage() {
         </>
       )}
 
-      {/* Pagination */}
+      {/* pagination */}
       {totalPages > 1 && (
         <div className="d-flex justify-content-between align-items-center mt-3">
           <button
@@ -372,7 +356,7 @@ export default function CarouselPage() {
         </div>
       )}
 
-      {/* Edit Modal */}
+      {/* modal */}
       {editingCarousel && (
         <div className="modal show d-block" tabIndex={-1}>
           <div className="modal-dialog">
@@ -400,11 +384,6 @@ export default function CarouselPage() {
                     handleFormChange("description", e.target.value)
                   }
                 />
-                <input
-                  type="file"
-                  className="form-control mb-2"
-                  disabled // 👈 disabled because update uses JSON
-                />
               </div>
               <div className="modal-footer">
                 <button
@@ -423,4 +402,6 @@ export default function CarouselPage() {
       )}
     </div>
   );
-}
+};
+
+export default CarouselPage;
