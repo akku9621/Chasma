@@ -24,6 +24,13 @@ export const API = {
     DELETE: (id: string) => `${BASE_URL}/products/${id}`,
   },
 
+  CAROUSELS: {
+    GET_ALL: `${BASE_URL}/carousels`,
+    CREATE: `${BASE_URL}/carousels`,
+    UPDATE: (id: string) => `${BASE_URL}/carousels/${id}`,
+    DELETE: (id: string) => `${BASE_URL}/carousels/${id}`,
+  },
+
   // ORDERS: {
   //   GET_ALL: `${BASE_URL}/orders`,
   //   GET_BY_ID: (id: string) => `${BASE_URL}/orders/${id}`,
