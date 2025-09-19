@@ -14,10 +14,10 @@ import { API } from "../services/api";
   Keep this here — it's used for badges and to render CategoryGrid if needed.
 */
 const CATEGORY_MAP = {
-  1: "Men",
-  2: "Women",
-  3: "Children",
-  4: "Offer",
+  1: { name: "Men", src: "/pictures/men.png" },
+  2: { name: "Women", src: "/pictures/women.png" },
+  3: { name: "Children", src: "/pictures/child.png" },
+  4: { name: "Offer", src: "/pictures/offer.png" },
 };
 
 export default function Home() {
@@ -42,9 +42,10 @@ export default function Home() {
   const offerScrollRef = useRef(null); // the actual scroll container
 
   // build categories array for CategoryGrid (if that component expects {id,name}[])
-  const categoriesArray = Object.keys(CATEGORY_MAP).map((k) => ({
+  const categoriesArray = Object.entries(CATEGORY_MAP).map(([k, v]) => ({
     id: Number(k),
-    name: CATEGORY_MAP[k],
+    name: v.name,
+    src: v.src,
   }));
 
   // load products (only products API, as requested)
@@ -177,7 +178,7 @@ export default function Home() {
             className="w-full h-36 sm:h-48 object-cover rounded-xl mb-3 sm:mb-4 transition-transform duration-500 group-hover:scale-110"
           />
           <div className="absolute top-2 right-2 bg-purple-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
-            {CATEGORY_MAP[product.category_id]}
+            {CATEGORY_MAP[product.category_id]?.name}
           </div>
         </div>
 
@@ -266,7 +267,7 @@ export default function Home() {
       <section id={`category-${categoryId}`} key={categoryId} className="mb-16">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-4 text-glow">
-            {CATEGORY_MAP[categoryId]} Collection
+            {CATEGORY_MAP[categoryId]?.name} Collection
           </h2>
           <p className="text-gray-300">{products.length} products available</p>
         </div>
@@ -329,43 +330,42 @@ export default function Home() {
 
             {/* One-line categories with scroll and gradient buttons */}
             <section className="my-12">
-  <div className="flex justify-center gap-4 overflow-x-auto no-scrollbar px-2">
-    {categoriesArray.map((cat) => (
-      <button
-        key={cat.id}
-        className="flex flex-col items-center space-y-1"
-        onClick={() => {
-          const section = document.getElementById(`category-${cat.id}`);
-          if (section) {
-            section.scrollIntoView({ behavior: "smooth" });
-          }
-        }}
-      >
-        {/* Circle Image */}
-        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-500 shadow-md hover:scale-110 transition-transform">
-          <img
-            src={cat.image} // make sure categoriesArray has `image` property
-            alt={cat.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-        {/* Label under image */}
-        <span className="text-sm font-semibold text-gray-700">{cat.name}</span>
-      </button>
-    ))}
-  </div>
+              <div className="flex justify-center gap-4 overflow-x-auto no-scrollbar px-2">
+                {categoriesArray.map((cat) => (
+                  <button
+                    key={cat.id}
+                    className="flex flex-col items-center space-y-1"
+                    onClick={() => {
+                      const section = document.getElementById(`category-${cat.id}`);
+                      if (section) {
+                        section.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }}
+                  >
+                    {/* Circle Image */}
+                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-500 shadow-md hover:scale-110 transition-transform">
+                      <img
+                        src={cat.src}
+                        alt={cat.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    {/* Label under image */}
+                    <span className="text-sm font-semibold text-gray-700">{cat.name}</span>
+                  </button>
+                ))}
+              </div>
 
-  <style jsx>{`
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-  `}</style>
-</section>
-
+              <style jsx>{`
+                .no-scrollbar::-webkit-scrollbar {
+                  display: none;
+                }
+                .no-scrollbar {
+                  -ms-overflow-style: none;
+                  scrollbar-width: none;
+                }
+              `}</style>
+            </section>
 
             {renderOfferSection()}
 
