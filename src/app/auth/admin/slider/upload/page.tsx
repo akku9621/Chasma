@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { API } from "@/services/api"; // ✅ make sure API.CAROUSELS is set up
+import { API } from "@/services/api"; // ✅ Make sure API.CAROUSELS paths exist
 
 interface Carousel {
   id: number;
@@ -16,7 +16,7 @@ interface Carousel {
   is_active: boolean;
 }
 
-const CarouselPage: React.FC = () => {
+export default function CarouselPage() {
   const [carousels, setCarousels] = useState<Carousel[]>([]);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
@@ -28,7 +28,6 @@ const CarouselPage: React.FC = () => {
 
   const token = Cookies.get("token");
 
-  // ✅ fetch
   const fetchCarousels = async () => {
     if (!token) {
       alert("❌ You are not logged in.");
@@ -42,7 +41,7 @@ const CarouselPage: React.FC = () => {
         size: String(size),
       });
 
-      const res = await fetch(`${API.CAROUSELS.GET_ALL}?${params}`, {
+      const res = await fetch(`${API.CAROUSELS.GET_ALL}?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -52,6 +51,7 @@ const CarouselPage: React.FC = () => {
         return;
       }
 
+      // ✅ Handle both plain array and paginated response
       if (Array.isArray(data)) {
         setCarousels(data);
         setTotalPages(1);
@@ -71,13 +71,13 @@ const CarouselPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, size]);
 
-  // ✅ helpers
   const handleFormChange = (key: string, value: any) => {
     setFormData((prev: any) => ({ ...prev, [key]: value }));
   };
 
   const createCarousel = async () => {
     if (!token) return;
+
     try {
       const fd = new FormData();
       fd.append("name", formData.name || "");
@@ -90,8 +90,9 @@ const CarouselPage: React.FC = () => {
         body: fd,
       });
 
+      const result = await res.json();
       if (!res.ok) {
-        console.error("Create failed");
+        console.error("Create failed:", result);
         alert("❌ Failed to create carousel.");
       } else {
         alert("✅ Carousel created successfully.");
@@ -121,8 +122,9 @@ const CarouselPage: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
+      const result = await res.json();
       if (!res.ok) {
-        console.error("Update failed");
+        console.error("Update failed:", result);
         alert("❌ Failed to update carousel.");
       } else {
         alert("✅ Carousel updated successfully.");
@@ -136,6 +138,7 @@ const CarouselPage: React.FC = () => {
 
   const deleteCarousel = async (id: number) => {
     if (!token) return;
+
     if (!confirm("Are you sure you want to delete this carousel?")) return;
 
     try {
@@ -148,6 +151,13 @@ const CarouselPage: React.FC = () => {
         alert("✅ Carousel deleted successfully.");
         fetchCarousels();
       } else {
+        let data = null;
+        try {
+          data = await res.json();
+        } catch {
+          // no body
+        }
+        console.error("Delete failed:", data);
         alert("❌ Failed to delete carousel.");
       }
     } catch (err) {
@@ -155,19 +165,19 @@ const CarouselPage: React.FC = () => {
     }
   };
 
-  // ✅ separate video/text
-  const videoCarousels = carousels.filter((c) =>
-    c.description?.trim().startsWith("<iframe")
+  // ✅ Separate video and text descriptions
+  const videoCarousels = carousels.filter(
+    (c) => c.description && c.description.trim().startsWith("<iframe")
   );
   const textCarousels = carousels.filter(
-    (c) => !c.description?.trim().startsWith("<iframe")
+    (c) => !c.description || !c.description.trim().startsWith("<iframe")
   );
 
   return (
     <div className="container">
       <h2 className="fw-bold mb-4">🎞️ Carousels</h2>
 
-      {/* form */}
+      {/* Upload Form */}
       <div className="card mb-4">
         <div className="card-body">
           <h5 className="card-title">Add New Carousel</h5>
@@ -187,7 +197,7 @@ const CarouselPage: React.FC = () => {
             type="file"
             className="form-control mb-2"
             onChange={(e) =>
-              handleFormChange("image", e.target.files?.[0] || null)
+              handleFormChange("image", e.target.files ? e.target.files[0] : null)
             }
           />
           <button className="btn btn-success" onClick={createCarousel}>
@@ -196,11 +206,11 @@ const CarouselPage: React.FC = () => {
         </div>
       </div>
 
-      {/* tables */}
       {loading ? (
         <p>Loading...</p>
       ) : (
         <>
+          {/* 🖼️ Text Description Table */}
           <h4 className="mt-4">📝 Text Carousels</h4>
           {textCarousels.length === 0 ? (
             <p className="text-muted">No text carousels found.</p>
@@ -226,9 +236,12 @@ const CarouselPage: React.FC = () => {
                           <img
                             src={`${c.image_folder}/${c.image_path}`}
                             alt={c.name}
-                            width="80"
-                            height="60"
-                            style={{ objectFit: "cover" }}
+                            style={{
+                              width: "80px",
+                              height: "60px",
+                              objectFit: "cover",
+                            }}
+                            className="rounded"
                           />
                         ) : (
                           "No image"
@@ -264,6 +277,7 @@ const CarouselPage: React.FC = () => {
             </div>
           )}
 
+          {/* 🎥 Video Description Table */}
           <h4 className="mt-4">🎥 Video Carousels</h4>
           {videoCarousels.length === 0 ? (
             <p className="text-muted">No video carousels found.</p>
@@ -289,9 +303,12 @@ const CarouselPage: React.FC = () => {
                           <img
                             src={`${c.image_folder}/${c.image_path}`}
                             alt={c.name}
-                            width="80"
-                            height="60"
-                            style={{ objectFit: "cover" }}
+                            style={{
+                              width: "80px",
+                              height: "60px",
+                              objectFit: "cover",
+                            }}
+                            className="rounded"
                           />
                         ) : (
                           "No image"
@@ -299,9 +316,7 @@ const CarouselPage: React.FC = () => {
                       </td>
                       <td>{c.name}</td>
                       <td>
-                        <div
-                          dangerouslySetInnerHTML={{ __html: c.description }}
-                        />
+                        <div dangerouslySetInnerHTML={{ __html: c.description }} />
                       </td>
                       <td>{c.slug}</td>
                       <td>
@@ -333,7 +348,7 @@ const CarouselPage: React.FC = () => {
         </>
       )}
 
-      {/* pagination */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="d-flex justify-content-between align-items-center mt-3">
           <button
@@ -356,7 +371,7 @@ const CarouselPage: React.FC = () => {
         </div>
       )}
 
-      {/* modal */}
+      {/* Edit Modal */}
       {editingCarousel && (
         <div className="modal show d-block" tabIndex={-1}>
           <div className="modal-dialog">
@@ -384,6 +399,11 @@ const CarouselPage: React.FC = () => {
                     handleFormChange("description", e.target.value)
                   }
                 />
+                <input
+                  type="file"
+                  className="form-control mb-2"
+                  disabled // 👈 update is JSON only
+                />
               </div>
               <div className="modal-footer">
                 <button
@@ -402,6 +422,4 @@ const CarouselPage: React.FC = () => {
       )}
     </div>
   );
-};
-
-export default CarouselPage;
+}
