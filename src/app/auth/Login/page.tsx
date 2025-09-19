@@ -97,7 +97,7 @@ export default function AdminLoginPage() {
               className="form-control"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@gmail.com"
+              placeholder="username"
               required
               autoFocus
               disabled={loading}
@@ -111,7 +111,7 @@ export default function AdminLoginPage() {
               className="form-control"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="admin123"
+              placeholder="password"
               required
               disabled={loading}
             />
