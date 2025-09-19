@@ -329,32 +329,43 @@ export default function Home() {
 
             {/* One-line categories with scroll and gradient buttons */}
             <section className="my-12">
-              <div className="flex justify-center gap-4 overflow-x-auto no-scrollbar px-2">
-                {categoriesArray.map((cat) => (
-                  <button
-                    key={cat.id}
-                    className="px-5 py-2 text-white font-semibold rounded-full bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-cyan-500 hover:to-purple-600 transition-all shadow-lg hover:shadow-cyan-400/30 whitespace-nowrap"
-                    onClick={() => {
-                      const section = document.getElementById(`category-${cat.id}`);
-                      if (section) {
-                        section.scrollIntoView({ behavior: "smooth" });
-                      }
-                    }}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
-              <style jsx>{`
-                .no-scrollbar::-webkit-scrollbar {
-                  display: none;
-                }
-                .no-scrollbar {
-                  -ms-overflow-style: none;
-                  scrollbar-width: none;
-                }
-              `}</style>
-            </section>
+  <div className="flex justify-center gap-4 overflow-x-auto no-scrollbar px-2">
+    {categoriesArray.map((cat) => (
+      <button
+        key={cat.id}
+        className="flex flex-col items-center space-y-1"
+        onClick={() => {
+          const section = document.getElementById(`category-${cat.id}`);
+          if (section) {
+            section.scrollIntoView({ behavior: "smooth" });
+          }
+        }}
+      >
+        {/* Circle Image */}
+        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-500 shadow-md hover:scale-110 transition-transform">
+          <img
+            src={cat.image} // make sure categoriesArray has `image` property
+            alt={cat.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        {/* Label under image */}
+        <span className="text-sm font-semibold text-gray-700">{cat.name}</span>
+      </button>
+    ))}
+  </div>
+
+  <style jsx>{`
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  `}</style>
+</section>
+
 
             {renderOfferSection()}
 
