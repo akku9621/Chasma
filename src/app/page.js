@@ -6,6 +6,7 @@ import Button from "../app/components/ui/Button";
 import HeroSection from "../app/components/Home/HeroSection";
 import CategoryGrid from "../app/components/Home/CategoryGrid";
 import ProductModal from "../app/components/ui/ProductModal";
+import Carousel from "../app/components/video/page";
 
 import { API } from "../services/api";
 
@@ -405,6 +406,9 @@ export default function Home() {
             ))}
           </div>
         </section>
+      </div>
+      <div>
+        <Carousel />
       </div>
 
       {selectedProduct && (
