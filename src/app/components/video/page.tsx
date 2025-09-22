@@ -1,30 +1,44 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState, useRef } from "react";
 import { API } from "@/services/api";
 import Cookies from "js-cookie";
 
 export default function VideoCarousel() {
-  const [videos, setVideos] = useState([]); 
-  const [isPaused, setIsPaused] = useState(false); 
-  const scrollRef = useRef(null);
+  const [videos, setVideos] = useState<any[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const token = Cookies.get("token");
 
   // Fetch videos
   useEffect(() => {
     const fetchVideos = async () => {
-      if (!token) return;
+      if (!token) {
+        console.error("No token found.");
+        return;
+      }
+
       try {
-        const res = await fetch(API.CAROUSELS.GET_ALL, {
+        // Add page/size query params to match working pattern
+        const params = new URLSearchParams({ page: "1", size: "50" });
+        const res = await fetch(`${API.CAROUSELS.GET_ALL}?${params}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        if (!res.ok) {
+          console.error("Failed to fetch videos:", res.status);
+          return;
+        }
+
         const data = await res.json();
         const items = Array.isArray(data) ? data : data.items || [];
+
+        // Only keep carousels with iframe descriptions
         const filtered = items.filter(
           (c) => c.description && c.description.trim().startsWith("<iframe")
         );
 
-        // ✅ Ensure iframe has proper allow attributes
+        // Ensure iframe has autoplay/allow attributes
         const fixed = filtered.map((item) => {
           let desc = item.description;
           if (!desc.includes("allow=")) {
@@ -52,7 +66,6 @@ export default function VideoCarousel() {
     const interval = setInterval(() => {
       if (scrollRef.current) {
         scrollRef.current.scrollBy({ left: 1, behavior: "smooth" });
-
         if (
           scrollRef.current.scrollLeft + scrollRef.current.clientWidth >=
           scrollRef.current.scrollWidth
@@ -64,6 +77,23 @@ export default function VideoCarousel() {
 
     return () => clearInterval(interval);
   }, [isPaused]);
+
+  // Pause scrolling when user clicks or focuses on iframe
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const handleFocusIn = () => setIsPaused(true);
+    const handleFocusOut = () => setIsPaused(false);
+
+    container.addEventListener("focusin", handleFocusIn);
+    container.addEventListener("focusout", handleFocusOut);
+
+    return () => {
+      container.removeEventListener("focusin", handleFocusIn);
+      container.removeEventListener("focusout", handleFocusOut);
+    };
+  }, []);
 
   if (!videos.length) return null;
 
@@ -78,9 +108,10 @@ export default function VideoCarousel() {
           <div
             key={video.id}
             className="flex-shrink-0 w-[315px] h-[560px] rounded-2xl overflow-hidden shadow-lg bg-black"
-            // Stop scrolling when user interacts
             onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
             onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setIsPaused(false)}
           >
             <div
               className="w-full h-full"
