@@ -377,7 +377,7 @@ export default function Home() {
                       />
                     </div>
                     {/* Label under image */}
-                    <span className="text-sm font-semibold text-gray-700">{cat.name}</span>
+                    <span className="text-sm font-semibold text-white">{cat.name}</span>
                   </button>
                 ))}
               </div>
