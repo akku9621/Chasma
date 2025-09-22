@@ -86,11 +86,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               🏠 Dashboard
             </Link>
           </li>
-          {/* <li>
-            <Link href="/admin/categories" onClick={() => setSidebarOpen(false)}>
+          <li>
+            <Link href="/auth/admin/categories" onClick={() => setSidebarOpen(false)}>
               📂 Categories
             </Link>
-          </li> */}
+          </li>
           <li>
             <Link href="/auth/admin/products" onClick={() => setSidebarOpen(false)}>
               📦 Products

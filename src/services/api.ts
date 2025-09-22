@@ -31,6 +31,13 @@ export const API = {
     DELETE: (id: string) => `${BASE_URL}/carousels/${id}`,
   },
 
+  CATEGORIES: {
+    GET_ALL: `${BASE_URL}/categories`,
+    CREATE: `${BASE_URL}/categories`,
+    UPDATE: (id: string) => `${BASE_URL}/categories/${id}`,
+    DELETE: (id: string) => `${BASE_URL}/categories/${id}`,
+  },
+
   // ORDERS: {
   //   GET_ALL: `${BASE_URL}/orders`,
   //   GET_BY_ID: (id: string) => `${BASE_URL}/orders/${id}`,
