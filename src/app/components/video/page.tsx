@@ -4,13 +4,21 @@ import React, { useEffect, useState, useRef } from "react";
 import { API } from "@/services/api";
 import Cookies from "js-cookie";
 
+interface CarouselItem {
+  id: number;
+  name: string;
+  description: string;
+  image_path?: string | null;
+  image_folder?: string | null;
+  [key: string]: any; // for extra fields
+}
+
 export default function VideoCarousel() {
-  const [videos, setVideos] = useState<any[]>([]);
+  const [videos, setVideos] = useState<CarouselItem[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const token = Cookies.get("token");
 
-  // Fetch videos
   useEffect(() => {
     const fetchVideos = async () => {
       if (!token) {
@@ -19,7 +27,7 @@ export default function VideoCarousel() {
       }
 
       try {
-        // Add page/size query params to match working pattern
+        // Add page/size to match your working carousel fetch
         const params = new URLSearchParams({ page: "1", size: "50" });
         const res = await fetch(`${API.CAROUSELS.GET_ALL}?${params}`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -31,15 +39,14 @@ export default function VideoCarousel() {
         }
 
         const data = await res.json();
-        const items = Array.isArray(data) ? data : data.items || [];
+        const items: CarouselItem[] = Array.isArray(data) ? data : data.items || [];
 
-        // Only keep carousels with iframe descriptions
         const filtered = items.filter(
-          (c) => c.description && c.description.trim().startsWith("<iframe")
+          (c: CarouselItem) =>
+            c.description && c.description.trim().startsWith("<iframe")
         );
 
-        // Ensure iframe has autoplay/allow attributes
-        const fixed = filtered.map((item) => {
+        const fixed = filtered.map((item: CarouselItem) => {
           let desc = item.description;
           if (!desc.includes("allow=")) {
             desc = desc.replace(
@@ -78,7 +85,7 @@ export default function VideoCarousel() {
     return () => clearInterval(interval);
   }, [isPaused]);
 
-  // Pause scrolling when user clicks or focuses on iframe
+  // Pause scrolling when user interacts with iframe
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
@@ -104,7 +111,7 @@ export default function VideoCarousel() {
         className="flex gap-4 overflow-x-auto no-scrollbar"
         style={{ scrollBehavior: "smooth" }}
       >
-        {videos.map((video) => (
+        {videos.map((video: CarouselItem) => (
           <div
             key={video.id}
             className="flex-shrink-0 w-[315px] h-[560px] rounded-2xl overflow-hidden shadow-lg bg-black"
