@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { API } from "@/services/api";
-import Cookies from "js-cookie";
 
 interface CarouselItem {
   id: number;
@@ -10,33 +9,22 @@ interface CarouselItem {
   description: string;
   image_path?: string | null;
   image_folder?: string | null;
-  [key: string]: any; // for extra fields
+  [key: string]: any;
 }
 
 export default function VideoCarousel() {
   const [videos, setVideos] = useState<CarouselItem[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const token = Cookies.get("token");
+  const requestRef = useRef<number>();
 
+  // Fetch videos
   useEffect(() => {
     const fetchVideos = async () => {
-      if (!token) {
-        console.error("No token found.");
-        return;
-      }
-
       try {
-        // Add page/size to match your working carousel fetch
         const params = new URLSearchParams({ page: "1", size: "50" });
-        const res = await fetch(`${API.CAROUSELS.GET_ALL}?${params}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) {
-          console.error("Failed to fetch videos:", res.status);
-          return;
-        }
+        const res = await fetch(`${API.CAROUSELS.GET_ALL}?${params}`);
+        if (!res.ok) return;
 
         const data = await res.json();
         const items: CarouselItem[] = Array.isArray(data) ? data : data.items || [];
@@ -64,43 +52,29 @@ export default function VideoCarousel() {
     };
 
     fetchVideos();
-  }, [token]);
+  }, []);
 
-  // Auto-scroll
+  // Smooth auto-scroll using requestAnimationFrame
   useEffect(() => {
-    if (isPaused) return;
-
-    const interval = setInterval(() => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollBy({ left: 1, behavior: "smooth" });
-        if (
-          scrollRef.current.scrollLeft + scrollRef.current.clientWidth >=
-          scrollRef.current.scrollWidth
-        ) {
-          scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+    const step = () => {
+      if (scrollRef.current && !isPaused) {
+        const container = scrollRef.current;
+        container.scrollLeft += 0.5; // Adjust speed here
+        if (container.scrollLeft + container.clientWidth >= container.scrollWidth) {
+          container.scrollLeft = 0;
         }
       }
-    }, 20);
+      requestRef.current = requestAnimationFrame(step);
+    };
 
-    return () => clearInterval(interval);
+    requestRef.current = requestAnimationFrame(step);
+    return () => requestRef.current && cancelAnimationFrame(requestRef.current);
   }, [isPaused]);
 
-  // Pause scrolling when user interacts with iframe
-  useEffect(() => {
-    const container = scrollRef.current;
-    if (!container) return;
-
-    const handleFocusIn = () => setIsPaused(true);
-    const handleFocusOut = () => setIsPaused(false);
-
-    container.addEventListener("focusin", handleFocusIn);
-    container.addEventListener("focusout", handleFocusOut);
-
-    return () => {
-      container.removeEventListener("focusin", handleFocusIn);
-      container.removeEventListener("focusout", handleFocusOut);
-    };
-  }, []);
+  // Pause scrolling on user interaction with iframe
+  const handleUserInteract = (pause: boolean) => {
+    setIsPaused(pause);
+  };
 
   if (!videos.length) return null;
 
@@ -109,20 +83,21 @@ export default function VideoCarousel() {
       <div
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto no-scrollbar"
-        style={{ scrollBehavior: "smooth" }}
+        style={{ scrollBehavior: "auto" }} // disable smooth CSS scroll
       >
         {videos.map((video: CarouselItem) => (
           <div
             key={video.id}
             className="flex-shrink-0 w-[315px] h-[560px] rounded-2xl overflow-hidden shadow-lg bg-black"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-            onTouchStart={() => setIsPaused(true)}
-            onTouchEnd={() => setIsPaused(false)}
+            onMouseEnter={() => handleUserInteract(true)}
+            onMouseLeave={() => handleUserInteract(false)}
+            onTouchStart={() => handleUserInteract(true)}
+            onTouchEnd={() => handleUserInteract(false)}
           >
             <div
               className="w-full h-full"
               dangerouslySetInnerHTML={{ __html: video.description }}
+              onClick={() => handleUserInteract(true)} // stop scrolling when user clicks
             />
           </div>
         ))}

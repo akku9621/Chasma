@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { API } from "@/services/api"; // ✅ Make sure API.CAROUSELS paths exist
+import { API } from "../../../../services/api"; // ✅ Make sure API.CAROUSELS paths exist
 
 interface Carousel {
   id: number;
