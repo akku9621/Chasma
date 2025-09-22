@@ -16,7 +16,7 @@ export default function VideoCarousel() {
   const [videos, setVideos] = useState<CarouselItem[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number | null>(null);
 
   // Fetch videos
   useEffect(() => {
@@ -24,8 +24,10 @@ export default function VideoCarousel() {
       try {
         const params = new URLSearchParams({ page: "1", size: "50" });
         const res = await fetch(`${API.CAROUSELS.GET_ALL}?${params}`);
-        if (!res.ok) return;
-
+        if (!res.ok) {
+          console.error("Failed to fetch videos:", res.status);
+          return;
+        }
         const data = await res.json();
         const items: CarouselItem[] = Array.isArray(data) ? data : data.items || [];
 
@@ -59,7 +61,7 @@ export default function VideoCarousel() {
     const step = () => {
       if (scrollRef.current && !isPaused) {
         const container = scrollRef.current;
-        container.scrollLeft += 0.5; // Adjust speed here
+        container.scrollLeft += 0.5;
         if (container.scrollLeft + container.clientWidth >= container.scrollWidth) {
           container.scrollLeft = 0;
         }
@@ -68,13 +70,10 @@ export default function VideoCarousel() {
     };
 
     requestRef.current = requestAnimationFrame(step);
-    return () => requestRef.current && cancelAnimationFrame(requestRef.current);
+    return () => {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    };
   }, [isPaused]);
-
-  // Pause scrolling on user interaction with iframe
-  const handleUserInteract = (pause: boolean) => {
-    setIsPaused(pause);
-  };
 
   if (!videos.length) return null;
 
@@ -83,21 +82,18 @@ export default function VideoCarousel() {
       <div
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto no-scrollbar"
-        style={{ scrollBehavior: "auto" }} // disable smooth CSS scroll
+        style={{ scrollBehavior: "smooth" }}
+        onPointerEnter={() => setIsPaused(true)}
+        onPointerLeave={() => setIsPaused(false)}
       >
         {videos.map((video: CarouselItem) => (
           <div
             key={video.id}
             className="flex-shrink-0 w-[315px] h-[560px] rounded-2xl overflow-hidden shadow-lg bg-black"
-            onMouseEnter={() => handleUserInteract(true)}
-            onMouseLeave={() => handleUserInteract(false)}
-            onTouchStart={() => handleUserInteract(true)}
-            onTouchEnd={() => handleUserInteract(false)}
           >
             <div
               className="w-full h-full"
               dangerouslySetInnerHTML={{ __html: video.description }}
-              onClick={() => handleUserInteract(true)} // stop scrolling when user clicks
             />
           </div>
         ))}
