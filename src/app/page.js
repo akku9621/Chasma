@@ -15,10 +15,10 @@ import { API } from "../services/api";
   Keep this here — it's used for badges and to render CategoryGrid if needed.
 */
 const CATEGORY_MAP = {
-  1: { name: "Men", src: "/pictures/men.png" },
-  2: { name: "Women", src: "/pictures/women.png" },
-  3: { name: "Children", src: "/pictures/child.png" },
-  4: { name: "Offer", src: "/pictures/offer.png" },
+  1: { name: "Men", src: "/pictures/1.png" },
+  2: { name: "Women", src: "/pictures/2.png" },
+  3: { name: "Children", src: "/pictures/3.png" },
+  4: { name: "Offer", src: "/pictures/4.png" },
 };
 
 export default function Home() {
@@ -42,12 +42,29 @@ export default function Home() {
   const offerSectionRef = useRef(null); // used for auto-scroll-to-offer on load
   const offerScrollRef = useRef(null); // the actual scroll container
 
-  // build categories array for CategoryGrid (if that component expects {id,name}[])
-  const categoriesArray = Object.entries(CATEGORY_MAP).map(([k, v]) => ({
-    id: Number(k),
-    name: v.name,
-    src: v.src,
-  }));
+  // dynamic categories from API
+  const [dynamicCategories, setDynamicCategories] = useState({ ...CATEGORY_MAP });
+
+  // ✅ fetch categories API once
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(API.CATEGORIES.GET_ALL);
+        const data = await res.json();
+        const newCategories = {};
+        data.forEach((c) => {
+          newCategories[c.id] = {
+            name: c.name,
+            src: `/pictures/${c.id <= 10 ? c.id : 10}.png`, // image from public folder, fallback to 10.png
+          };
+        });
+        setDynamicCategories(newCategories);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // load products (only products API, as requested)
   useEffect(() => {
@@ -98,7 +115,6 @@ export default function Home() {
     const products = allProducts.filter((p) => p.category_id === 4);
     if (!products || products.length === 0) return;
 
-    // iOS smooth scrolling
     container.style.scrollBehavior = "auto";
     container.style.WebkitOverflowScrolling = "touch";
 
@@ -179,7 +195,7 @@ export default function Home() {
             className="w-full h-36 sm:h-48 object-cover rounded-xl mb-3 sm:mb-4 transition-transform duration-500 group-hover:scale-110"
           />
           <div className="absolute top-2 right-2 bg-purple-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
-            {CATEGORY_MAP[product.category_id]?.name}
+            {dynamicCategories[product.category_id]?.name || product.category_name || `Category ${product.category_id}`}
           </div>
         </div>
 
@@ -257,9 +273,11 @@ export default function Home() {
     );
   };
 
-  // category sections (Men, Women, Children)
+  // category sections dynamically
   const renderCategorySection = (categoryId) => {
     const products = allProducts.filter((p) => p.category_id === categoryId);
+    if (!products || products.length === 0) return null; // skip empty categories
+
     const page = currentPage[categoryId] || 1;
     const pages = totalPages(products, PRODUCTS_PER_PAGE);
     const items = paginate(products, page, PRODUCTS_PER_PAGE);
@@ -268,7 +286,7 @@ export default function Home() {
       <section id={`category-${categoryId}`} key={categoryId} className="mb-16">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-4 text-glow">
-            {CATEGORY_MAP[categoryId]?.name} Collection
+            {dynamicCategories[categoryId]?.name || `Category ${categoryId}`}
           </h2>
           <p className="text-gray-300">{products.length} products available</p>
         </div>
@@ -312,6 +330,13 @@ export default function Home() {
     </div>
   );
 
+  // build categories array for circle menu
+  const categoriesArray = Object.entries(dynamicCategories).map(([k, v]) => ({
+    id: Number(k),
+    name: v.name,
+    src: v.src || "/pictures/10.png", // fallback for new/missing categories
+  }));
+
   return (
     <div className="relative z-10">
       <HeroSection />
@@ -346,7 +371,7 @@ export default function Home() {
                     {/* Circle Image */}
                     <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-500 shadow-md hover:scale-110 transition-transform">
                       <img
-                        src={cat.src}
+                        src={cat.src || "/pictures/10.png"} // fallback image
                         alt={cat.name}
                         className="w-full h-full object-cover"
                       />
@@ -370,9 +395,10 @@ export default function Home() {
 
             {renderOfferSection()}
 
-            {renderCategorySection(1)}
-            {renderCategorySection(2)}
-            {renderCategorySection(3)}
+            {/* render all categories dynamically */}
+            {Object.keys(dynamicCategories)
+              .filter((id) => Number(id) !== 4) // skip offer, already rendered
+              .map((id) => renderCategorySection(Number(id)))}
           </>
         )}
 
