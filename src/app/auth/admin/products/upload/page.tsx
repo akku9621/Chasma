@@ -19,14 +19,24 @@ export default function UploadProductPage() {
   const [photo, setPhoto] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // ✅ Load categories from API instead of hardcoding
   useEffect(() => {
-    // Example: load categories from API if available
-    setCategories([
-      { id: 1, name: "Men" },
-      { id: 2, name: "Women" },
-      { id: 3, name: "Children" },
-      { id: 4, name: "Offer" },
-    ]);
+    const token = Cookies.get("token");
+    if (!token) return;
+
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(API.CATEGORIES.GET_ALL, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setCategories(data);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +70,6 @@ export default function UploadProductPage() {
       formData.append("language", "english");
       formData.append("photo", photo);
 
-      // ✅ Token in header, not query param
       const res = await fetch(API.PRODUCTS.CREATE, {
         method: "POST",
         headers: {
