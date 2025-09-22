@@ -13,6 +13,7 @@ import {
   MapPin,
 } from "lucide-react";
 import Image from "next/image";
+import FormModal from "../app/components/ui/FormModal";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
@@ -84,8 +85,8 @@ export default function ClientLayout({ children }) {
             </Link>
 
 
-            {/* <nav className="hidden md:flex items-center space-x-8">
-              {navigationItems.map((item) => (
+            <div className="hidden md:flex items-center space-x-8">
+              {/* {navigationItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.url}
@@ -98,12 +99,15 @@ export default function ClientLayout({ children }) {
                   <item.icon className="w-4 h-4" />
                   <span className="font-medium">{item.name}</span>
                 </Link>
-              ))}
-            </nav> */}
+              ))} */}
+
+              {/* Modal Link */}
+              <FormModal linkText="Query" />
+            </div>
 
             {/* Mobile Menu */}
-            {/* <div className="md:hidden flex items-center space-x-4">
-              {navigationItems.map((item) => (
+            <div className="md:hidden flex items-center space-x-4">
+              {/* {navigationItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.url}
@@ -115,8 +119,10 @@ export default function ClientLayout({ children }) {
                 >
                   <item.icon className="w-5 h-5" />
                 </Link>
-              ))}
-            </div> */}
+              ))} */}
+                            {/* Modal Link */}
+              <FormModal linkText="Query" />
+            </div>
           </div>
         </div>
       </header>

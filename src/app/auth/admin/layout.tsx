@@ -111,6 +111,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               🎞️ Carousels
             </Link>
           </li>
+          <li>
+            <Link href="/auth/admin/form" onClick={() => setSidebarOpen(false)}>
+              📄 Form/Query
+            </Link>
+          </li>
         </ul>
       </aside>
 

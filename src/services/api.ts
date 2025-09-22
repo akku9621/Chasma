@@ -38,6 +38,14 @@ export const API = {
     DELETE: (id: string) => `${BASE_URL}/categories/${id}`,
   },
 
+  FORM: {
+    GET_ALL: `${BASE_URL}/contact`,
+    CREATE: `${BASE_URL}/contact`,
+    // GET_ONE: (id: string) => `${BASE_URL}/contact/${id}`,
+    // UPDATE: (id: string) => `${BASE_URL}/contact/${id}`,
+    // DELETE: (id: string) => `${BASE_URL}/contact/${id}`,
+  }, 
+
   // ORDERS: {
   //   GET_ALL: `${BASE_URL}/orders`,
   //   GET_BY_ID: (id: string) => `${BASE_URL}/orders/${id}`,
