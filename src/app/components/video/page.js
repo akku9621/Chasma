@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { API } from "@/services/api";
 import Cookies from "js-cookie";
 
 export default function VideoCarousel() {
-  const [videos, setVideos] = useState([]);
+  const [videos, setVideos] = useState([]); 
+  const [isPaused, setIsPaused] = useState(false); 
+  const scrollRef = useRef(null);
   const token = Cookies.get("token");
 
+  // Fetch videos
   useEffect(() => {
     const fetchVideos = async () => {
       if (!token) return;
@@ -20,7 +23,20 @@ export default function VideoCarousel() {
         const filtered = items.filter(
           (c) => c.description && c.description.trim().startsWith("<iframe")
         );
-        setVideos(filtered);
+
+        // ✅ Ensure iframe has proper allow attributes
+        const fixed = filtered.map((item) => {
+          let desc = item.description;
+          if (!desc.includes("allow=")) {
+            desc = desc.replace(
+              "<iframe",
+              `<iframe allow="autoplay; encrypted-media; fullscreen" allowfullscreen`
+            );
+          }
+          return { ...item, description: desc };
+        });
+
+        setVideos(fixed);
       } catch (err) {
         console.error("Fetch failed:", err);
       }
@@ -29,47 +45,63 @@ export default function VideoCarousel() {
     fetchVideos();
   }, [token]);
 
+  // Auto-scroll
+  useEffect(() => {
+    if (isPaused) return;
+
+    const interval = setInterval(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollBy({ left: 1, behavior: "smooth" });
+
+        if (
+          scrollRef.current.scrollLeft + scrollRef.current.clientWidth >=
+          scrollRef.current.scrollWidth
+        ) {
+          scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+        }
+      }
+    }, 20);
+
+    return () => clearInterval(interval);
+  }, [isPaused]);
+
   if (!videos.length) return null;
 
-  // Duplicate videos for seamless scroll
-  const videoList = [...videos, ...videos];
-
   return (
-    <section className="my-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-      <div className="overflow-hidden">
-        <div className="flex w-max animate-marquee">
-          {videoList.map((video, index) => (
+    <section className="relative w-full overflow-hidden py-6">
+      <div
+        ref={scrollRef}
+        className="flex gap-4 overflow-x-auto no-scrollbar"
+        style={{ scrollBehavior: "smooth" }}
+      >
+        {videos.map((video) => (
+          <div
+            key={video.id}
+            className="flex-shrink-0 w-[315px] h-[560px] rounded-2xl overflow-hidden shadow-lg bg-black"
+            // Stop scrolling when user interacts
+            onMouseEnter={() => setIsPaused(true)}
+            onTouchStart={() => setIsPaused(true)}
+          >
             <div
-              key={index}
-              className="flex-shrink-0 w-[315px] h-[560px] rounded-2xl overflow-hidden shadow-lg"
-            >
-              <div
-                className="w-full h-full"
-                dangerouslySetInnerHTML={{ __html: video.description }}
-              />
-            </div>
-          ))}
-        </div>
+              className="w-full h-full"
+              dangerouslySetInnerHTML={{ __html: video.description }}
+            />
+          </div>
+        ))}
       </div>
 
       <style jsx>{`
-        .animate-marquee {
-          display: flex;
-          gap: 1rem;
-          animation: marquee 30s linear infinite;
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
         }
-
-        .animate-marquee:hover {
-          animation-play-state: paused; /* pause on hover */
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
-
-        @keyframes marquee {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
+        iframe {
+          width: 100%;
+          height: 100%;
+          border: none;
         }
       `}</style>
     </section>
