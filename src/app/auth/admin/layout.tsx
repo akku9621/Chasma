@@ -107,7 +107,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
           </li> */}
           <li>
-            <Link href="/auth/admin/slider/upload" onClick={() => setSidebarOpen(false)}>
+            <Link href="/auth/admin/slider" onClick={() => setSidebarOpen(false)}>
               🎞️ Carousels
             </Link>
           </li>
