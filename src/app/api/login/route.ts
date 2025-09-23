@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const BACKEND_URL = "https://chashma-backend.vercel.app/api/v1/auth/login";
+const BACKEND_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login`;
 
 export async function POST(req: Request) {
   try {
