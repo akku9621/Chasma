@@ -1,8 +1,11 @@
 import React from "react";
 import Button from "../ui/Button";
 import Badge from "../ui/Badge";
+import { useTranslation } from "react-i18next";
 
 export default function CategoryFilter({ categories, selectedCategory, onCategoryChange }) {
+  const { t } = useTranslation(); 
+
   return (
     <div className="glass-effect p-6 rounded-2xl glow-effect sticky top-24">
       <h3 className="text-xl font-bold text-white mb-6 text-glow">Categories</h3>
@@ -17,7 +20,7 @@ export default function CategoryFilter({ categories, selectedCategory, onCategor
               : "text-gray-300 hover:text-white hover:glass-effect"
           }`}
         >
-          All Categories
+          {t("all_categories")}
         </Button>
         
         {categories.map((category) => (

@@ -9,6 +9,7 @@ import ProductModal from "../app/components/ui/ProductModal";
 import Carousel from "../app/components/video/page";
 
 import { API } from "../services/api";
+import { useTranslation } from "react-i18next";
 
 /*
   CATEGORY_MAP: local category map used instead of fetching categories.
@@ -26,6 +27,7 @@ export default function Home() {
   const [allProducts, setAllProducts] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const { t } = useTranslation(); 
 
   // pagination per category (1..3). Offer is a scroller, not paginated.
   const [currentPage, setCurrentPage] = useState({
@@ -210,7 +212,7 @@ export default function Home() {
 
           {product.size && (
             <p className="text-xs font-medium text-gray-300 mb-2">
-              Size: <span className="text-cyan-400 uppercase">{product.size}</span>
+              {t("size")}: <span className="text-cyan-400 uppercase">{product.size}</span>
             </p>
           )}
 
@@ -234,7 +236,7 @@ export default function Home() {
       return (
         <section className="mb-16">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-4 text-glow">Special Offers</h2>
+            <h2 className="text-3xl font-bold text-white mb-4 text-glow">{t("special_offers")}</h2>
             <p className="text-gray-300">No offers available</p>
           </div>
         </section>
@@ -246,8 +248,8 @@ export default function Home() {
     return (
       <section id="category-4" key="offer" ref={offerSectionRef} className="mb-16">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-4 text-glow">Special Offers</h2>
-          <p className="text-gray-300">{products.length} offers available</p>
+          <h2 className="text-3xl font-bold text-white mb-4 text-glow">{t("special_offers")}</h2>
+          <p className="text-gray-300">{products.length} {t("offers_available")}</p>
         </div>
 
         <div
@@ -403,23 +405,23 @@ export default function Home() {
         )}
 
         <section className="text-center mt-4">
-          <h2 className="text-4xl font-bold text-white mb-16 text-glow">Why Choose Jyoti Chashma?</h2>
+          <h2 className="text-4xl font-bold text-white mb-16 text-glow">{t("why_choose")}</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 icon: Shield,
-                title: "Advanced Protection",
-                description: "Military-grade UV protection and impact resistance",
+                title: t("advanced_protection"),
+                description: t("desc1"),
               },
               {
                 icon: Eye,
-                title: "Crystal Clear Vision",
-                description: "Anti-fog technology with HD clarity in any condition",
+                title: t("crystal_clear_vision"),
+                description: t("desc2"),
               },
               {
                 icon: Zap,
-                title: "Smart Features",
-                description: "Integrated tech for the ultimate performance experience",
+                title: t("smart_features"),
+                description: t("desc3"),
               },
             ].map((feature, index) => (
               <div key={index} className="glass-effect p-8 rounded-2xl glow-effect group hover:scale-105 transition-all">

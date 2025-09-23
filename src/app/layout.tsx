@@ -42,6 +42,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* ✅ Wrap everything with AppProviders (i18n + context) */}
         <AppProviders>
           <ClientLayout>{children}</ClientLayout>
         </AppProviders>

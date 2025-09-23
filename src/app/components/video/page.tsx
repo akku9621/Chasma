@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { API } from "@/services/api";
+import { useTranslation } from "react-i18next";
 
 interface CarouselItem {
   id: number;
@@ -17,6 +18,7 @@ export default function VideoCarousel() {
   const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef<number | null>(null);
+  const { t } = useTranslation(); 
 
   // Fetch videos
   useEffect(() => {
@@ -78,7 +80,10 @@ export default function VideoCarousel() {
   if (!videos.length) return null;
 
   return (
-    <section className="relative w-full overflow-hidden py-6">
+    <section className="relative w-full overflow-hidden">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-white mb-4 text-glow">{t("our_feed")}</h2>
+      </div>
       <div
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto no-scrollbar"

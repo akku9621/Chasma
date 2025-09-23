@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from "react-i18next";
 
 // Dialog Context
 const DialogContext = React.createContext({});
-
+const { t } = useTranslation(); 
 // Dialog Root Component
 export const Dialog = ({ children, open, onOpenChange, defaultOpen = false, ...props }) => {
   const [isOpen, setIsOpen] = useState(open ?? defaultOpen);
@@ -106,7 +107,7 @@ export const DialogContent = React.forwardRef(({ className = "", children, ...pr
           onClick={() => setIsOpen(false)}
         >
           <X className="h-4 w-4 text-gray-400 hover:text-white" />
-          <span className="sr-only">Close</span>
+          <span className="sr-only">{t("close")}</span>
         </button>
       </div>
     </>

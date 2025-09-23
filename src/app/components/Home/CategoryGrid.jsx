@@ -1,7 +1,9 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function CategoryGrid({ categories, onCategorySelect }) {
+  const { t } = useTranslation(); 
   if (!categories.length) return null;
 
   return (
@@ -29,7 +31,7 @@ export default function CategoryGrid({ categories, onCategorySelect }) {
                   {category.description}
                 </p>
                 <div className="flex items-center text-cyan-400 font-medium group-hover:text-cyan-300 transition-colors">
-                  <span>Explore Collection</span>
+                  <span>{t("explore_collection")}</span>
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>

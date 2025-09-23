@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { API } from "../../../services/api";
 import Cookies from "js-cookie";
 import "./form.css"
+import { useTranslation } from "react-i18next";
 
 interface ModalProps {
   linkText?: string;
@@ -17,6 +18,7 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation(); 
 
   const token = Cookies.get("token");
 
@@ -81,12 +83,12 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
             >
               ✕
             </button>
-            <h3 className="text-lg font-bold mb-4 text-glow text-center">Send a Message</h3>
+            <h3 className="text-lg font-bold mb-4 text-glow text-center">{t("send_a_message")}</h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="text"
-                placeholder="Name"
+                placeholder={t("name")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full mb-2 p-2 rounded border border-white/30 bg-white/10 placeholder-gray-300 text-white"
@@ -94,7 +96,7 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
               />
               <input
                 type="email"
-                placeholder="Email"
+                placeholder={t("email")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full mb-2 p-2 rounded border border-white/30 bg-white/10 placeholder-gray-300 text-white"
@@ -102,7 +104,7 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
               />
               <input
                 type="tel"
-                placeholder="Phone"
+                placeholder={t("phone")}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full mb-2 p-2 rounded border border-white/30 bg-white/10 placeholder-gray-300 text-white"
@@ -110,14 +112,14 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
               />
               <input
                 type="text"
-                placeholder="Subject"
+                placeholder={t("subject")}
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 className="w-full mb-2 p-2 rounded border border-white/30 bg-white/10 placeholder-gray-300 text-white"
                 required
               />
               <textarea
-                placeholder="Message"
+                placeholder={t("message")}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="w-full mb-2 p-2 rounded border border-white/30 bg-white/10 placeholder-gray-300 text-white"
@@ -129,7 +131,7 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
                 className="w-full py-2 rounded-lg bg-gradient-to-r from-purple-500 to-cyan-500 text-white text-glow font-semibold"
                 disabled={loading}
               >
-                {loading ? "Submitting..." : "Submit"}
+                 {loading ? t("submitting") : t("submit")}
               </button>
             </form>
           </div>

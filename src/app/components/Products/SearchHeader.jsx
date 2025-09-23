@@ -3,6 +3,7 @@ import { Input } from "../ui/Input";
 import Button from "../ui/Button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/Select";
 import { Search, Grid, List, SortAsc } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function SearchHeader({ 
   searchQuery, 
@@ -13,15 +14,17 @@ export default function SearchHeader({
   onSortChange, 
   totalProducts 
 }) {
+   const { t } = useTranslation(); 
+
   return (
     <section className="glass-effect border-b border-white/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-4 text-glow">
-            Discover Your Perfect Vision
+            {t("discover_your_perfect_vision")}
           </h1>
           <p className="text-xl text-gray-300">
-            {totalProducts} premium goggles waiting for you
+            {totalProducts} {t("premium_goggles_waiting_for_you")}
           </p>
         </div>
 
@@ -65,8 +68,8 @@ export default function SearchHeader({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="name">Name</SelectItem>
-                <SelectItem value="price_low">Price: Low to High</SelectItem>
-                <SelectItem value="price_high">Price: High to Low</SelectItem>
+                <SelectItem value="price_low">{t("price_low_to_high")}</SelectItem>
+                <SelectItem value="price_high">{t("price_high_to_low")}</SelectItem>
               </SelectContent>
             </Select>
           </div>

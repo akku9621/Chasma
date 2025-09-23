@@ -2,8 +2,10 @@ import React from "react";
 import Button from "../ui/Button";
 import Badge from "../ui/Badge";
 import { Star, ShoppingBag, Eye, Zap } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function ProductCard({ product, viewMode, onClick }) {
+  const { t } = useTranslation(); 
   const isListView = viewMode === "list";
 
   return (
@@ -25,7 +27,7 @@ export default function ProductCard({ product, viewMode, onClick }) {
         {product.featured && (
           <Badge className="absolute top-3 left-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-none glow-effect">
             <Star className="w-3 h-3 mr-1 fill-current" />
-            Featured
+            {t("featured")}
           </Badge>
         )}
 
@@ -33,7 +35,7 @@ export default function ProductCard({ product, viewMode, onClick }) {
         {!product.in_stock && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <Badge variant="destructive" className="text-lg px-4 py-2">
-              Out of Stock
+              {t("out_of_stock")}
             </Badge>
           </div>
         )}
@@ -79,7 +81,7 @@ export default function ProductCard({ product, viewMode, onClick }) {
           </div>
           {product.original_price && (
             <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
-              Save ${(product.original_price - product.price).toFixed(0)}
+              {t("save")} ${(product.original_price - product.price).toFixed(0)}
             </Badge>
           )}
         </div>
@@ -90,7 +92,7 @@ export default function ProductCard({ product, viewMode, onClick }) {
           disabled={!product.in_stock}
         >
           <Eye className="w-5 h-5 mr-2" />
-          View Details
+          {t("view_details")}
         </Button>
       </div>
     </div>

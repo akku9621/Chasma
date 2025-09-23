@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { X, MessageCircle, Share2, Eye } from "lucide-react";
 import "./virtualtryon.css"; // optional styling
+import { useTranslation } from "react-i18next";
 
 interface ProductModalProps {
   product: any;
@@ -24,6 +25,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
   const [activeTab, setActiveTab] = useState("Overview");
   const [visible, setVisible] = useState(false);
   const [showTryOn, setShowTryOn] = useState(false);
+  const { t } = useTranslation(); 
 
   // --- Virtual Try-On refs and state ---
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -77,24 +79,24 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
             </p>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-gray-400">Brand:</span>{" "}
-                <span className="text-white ml-1">Jyoti Chashma</span>
+                <span className="text-gray-400">{t("brand")}:</span>{" "}
+                <span className="text-white ml-1">{t("jyoti_chashma")}</span>
               </div>
               <div>
-                <span className="text-gray-400">Model:</span>{" "}
+                <span className="text-gray-400">{t("model")}:</span>{" "}
                 <span className="text-white ml-1">{product.name}</span>
               </div>
               <div>
-                <span className="text-gray-400">Category:</span>{" "}
+                <span className="text-gray-400">{t("category")}:</span>{" "}
                 <span className="text-white ml-1">{categoryMap[product.category_id] || "Premium Eyewear"}</span>
               </div>
               <div>
-                <span className="text-gray-400">Availability:</span>{" "}
-                <span className="text-green-400 ml-1">In Stock</span>
+                <span className="text-gray-400">{t("availability")}:</span>{" "}
+                <span className="text-green-400 ml-1">{t("in_stock")}</span>
               </div>
               {product.size && (
                 <div className="col-span-2">
-                  <span className="text-gray-400">Sizes:</span>{" "}
+                  <span className="text-gray-400">{t("sizes")}:</span>{" "}
                   <span className="text-white ml-1">{product.size}</span>
                 </div>
               )}
@@ -311,14 +313,14 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded-lg flex items-center justify-center space-x-1"
             >
               <Eye className="w-4 h-4" />
-              <span>Try On</span>
+              <span>{t("try_on")}</span>
             </button>
             <button
               onClick={handleOrderOnWhatsApp}
               className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm py-2 rounded-lg flex items-center justify-center space-x-1"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp</span>
+              <span>{t("whatsapp")}</span>
             </button>
           </div>
         </div>
