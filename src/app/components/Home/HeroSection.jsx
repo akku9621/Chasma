@@ -2,8 +2,10 @@ import React from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import Button from "../ui/Button";
+import { useTranslation } from "react-i18next";
 
 export default function HeroSection() {
+  const { t } = useTranslation(); 
     return (
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Hero Background */}
@@ -26,20 +28,19 @@ export default function HeroSection() {
           <div className="mb-6">
             <span className="inline-flex items-center px-4 py-2 rounded-full glass-effect text-cyan-400 text-sm font-medium glow-effect">
               <Sparkles className="w-4 h-4 mr-2" />
-              Next-Gen Eyewear Technology
+              {t("next_gen")}
             </span>
           </div>
           
           <h1 className="text-6xl md:text-8xl font-bold text-white mb-8 leading-tight">
-            <span className="block text-glow">Jyoti</span>
+            <span className="block text-glow">{t("jyoti")}</span>
             <span className="block bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              Chashma
+              {t("chashma")}
             </span>
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Experience the future of protective eyewear with our revolutionary 
-            collection of smart goggles and advanced vision systems.
+            {t("slider_msg")}
           </p>
           
           {/* <div className="flex flex-col sm:flex-row gap-6 justify-center">

@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, ShoppingBag, Star } from "lucide-react";
 import Button from "../ui/Button";
+import { useTranslation } from "react-i18next";
 
 export default function FeaturedCarousel({ products, onProductClick }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { t } = useTranslation(); 
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % products.length);
@@ -39,7 +41,7 @@ export default function FeaturedCarousel({ products, onProductClick }) {
                     <div className="mb-4">
                       <div className="flex items-center space-x-2 mb-2">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-gray-300 text-sm">Premium Quality</span>
+                        <span className="text-gray-300 text-sm">{t("premium_quality")}</span>
                       </div>
                       <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 text-glow">
                         {product.name}
@@ -68,7 +70,7 @@ export default function FeaturedCarousel({ products, onProductClick }) {
                         className="flex-1 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold py-3 rounded-xl glow-effect hover:scale-105 transition-all"
                       >
                         <ShoppingBag className="w-5 h-5 mr-2" />
-                        View Details
+                        {t("view_details")}
                       </Button>
                     </div>
                   </div>

@@ -14,12 +14,24 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import FormModal from "../app/components/ui/FormModal";
+import { useTranslation } from "react-i18next"; // ✅ for language toggle
+import { useState } from "react";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
 
   // ✅ detect if route is /auth/*
   const isAuthPage = pathname.startsWith("/auth");
+
+  const { i18n } = useTranslation(); // ✅ hook for changing language
+  const [lang, setLang] = useState(i18n.language || "en"); // track current language
+  const { t } = useTranslation(); 
+
+  const toggleLanguage = () => {
+    const newLang = lang === "en" ? "hi" : "en";
+    i18n.changeLanguage(newLang);
+    setLang(newLang);
+  };
 
   const navigationItems = [
     { name: "Home", icon: Home, url: "/" },
@@ -80,48 +92,35 @@ export default function ClientLayout({ children }) {
                 />
               </div>
               <span className="text-xl font-bold text-white text-glow">
-                Jyoti Chashma
+                {t("jyoti_chashma")}
               </span>
             </Link>
 
-
-            <div className="hidden md:flex items-center space-x-8">
-              {/* {navigationItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.url}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                    pathname === item.url
-                      ? "glass-effect text-cyan-400 glow-effect"
-                      : "text-gray-300 hover:text-cyan-400 hover:glass-effect"
-                  }`}
-                >
-                  <item.icon className="w-4 h-4" />
-                  <span className="font-medium">{item.name}</span>
-                </Link>
-              ))} */}
-
+            <div className="hidden md:flex items-center space-x-4">
               {/* Modal Link */}
               <FormModal linkText="Query" />
+
+              {/* ✅ Single language toggle button */}
+              <button
+                onClick={toggleLanguage}
+                className="px-3 py-1 bg-white/20 text-white rounded hover:bg-white/30 transition"
+              >
+                {lang.toUpperCase()}
+              </button>
             </div>
 
             {/* Mobile Menu */}
-            <div className="md:hidden flex items-center space-x-4">
-              {/* {navigationItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.url}
-                  className={`p-2 rounded-lg transition-all ${
-                    pathname === item.url
-                      ? "glass-effect text-cyan-400 glow-effect"
-                      : "text-gray-300 hover:text-cyan-400"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                </Link>
-              ))} */}
-                            {/* Modal Link */}
+            <div className="md:hidden flex items-center space-x-2">
+              {/* Modal Link */}
               <FormModal linkText="Query" />
+
+              {/* ✅ Single language toggle for mobile */}
+              <button
+                onClick={toggleLanguage}
+                className="px-2 py-1 bg-white/20 text-white rounded hover:bg-white/30 transition text-sm"
+              >
+                {lang.toUpperCase()}
+              </button>
             </div>
           </div>
         </div>
@@ -141,12 +140,11 @@ export default function ClientLayout({ children }) {
                   <Zap className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold text-white text-glow">
-                  Jyoti Chashma
+                  {t("jyoti_chashma")}
                 </span>
               </div>
               <p className="text-gray-300 leading-relaxed mb-6">
-                Leading the future of eyewear technology with innovative designs
-                and cutting-edge features.
+                {t("slider_line")}
               </p>
               <div className="flex space-x-4">
                 <a href="#" className="text-gray-400 hover:text-cyan-400">
@@ -164,7 +162,7 @@ export default function ClientLayout({ children }) {
             {/* Quick Links */}
             <div>
               <h3 className="text-lg font-semibold text-white mb-6 text-glow">
-                Quick Links
+                {t("map")}
               </h3>
               <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden" }}>
                 <iframe
@@ -175,38 +173,12 @@ export default function ClientLayout({ children }) {
                   referrerPolicy="no-referrer-when-downgrade"
                 ></iframe>
               </div>
-
             </div>
-
-            {/* Support */}
-            {/* <div>
-              <h3 className="text-lg font-semibold text-white mb-6 text-glow">
-                Support
-              </h3>
-              <ul className="space-y-3">
-                {[
-                  "Help Center",
-                  "Size Guide",
-                  "Warranty",
-                  "Returns",
-                  "Tech Support",
-                ].map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="text-gray-300 hover:text-cyan-400 transition-colors"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div> */}
 
             {/* Contact */}
             <div>
               <h3 className="text-lg font-semibold text-white mb-6 text-glow">
-                Contact
+                {t("quick_links")}
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
@@ -219,7 +191,7 @@ export default function ClientLayout({ children }) {
                 </div>
                 <div className="flex items-center space-x-3">
                   <MapPin className="w-5 h-5 text-cyan-400" />
-                  <span className="text-gray-300">Zamania Railway Station, Ghazipur, UP, India</span>
+                  <span className="text-gray-300">{t("address")}</span>
                 </div>
               </div>
             </div>
@@ -229,19 +201,8 @@ export default function ClientLayout({ children }) {
           <div className="border-t border-white/20 mt-12 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-gray-400 text-sm">
-                © 2025 Jyoti Chashma. All rights reserved. Built for the future.
+                {t("footer_text")}
               </p>
-              {/* <div className="flex space-x-6 mt-4 md:mt-0">
-                <a href="#" className="text-gray-400 hover:text-cyan-400 text-sm">
-                  Privacy Policy
-                </a>
-                <a href="#" className="text-gray-400 hover:text-cyan-400 text-sm">
-                  Terms of Service
-                </a>
-                <a href="#" className="text-gray-400 hover:text-cyan-400 text-sm">
-                  Cookies
-                </a>
-              </div> */}
             </div>
           </div>
         </div>
