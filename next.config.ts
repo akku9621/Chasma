@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: `${process.env.BACKEND_URL}/api/:path*`, // ✅ backend
+        destination: "https://chashma-backend.vercel.app/api/:path*", // ✅ backend
       },
     ];
   },
