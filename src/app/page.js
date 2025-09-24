@@ -192,7 +192,7 @@ export default function Home() {
       <div className="p-3 sm:p-4 bg-gray-900 rounded-[15px] flex flex-col h-full text-center">
         <div className="relative">
           <img
-            src={product.image_url}
+            src={product.image_path ? process.env.NEXT_PUBLIC_BACKEND_URL + "/api/uploads/" + product.image_path : "/pictures/image.png"}
             alt={product.name}
             className="w-full h-36 sm:h-48 object-cover rounded-xl mb-3 sm:mb-4 transition-transform duration-500 group-hover:scale-110"
           />
@@ -221,7 +221,7 @@ export default function Home() {
               ₹{product.price}
             </p>
             <Button className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-full px-4 py-2 text-sm shadow-md hover:shadow-lg transition-all transform hover:scale-105">
-              View
+              {t("view")}
             </Button>
           </div>
         </div>

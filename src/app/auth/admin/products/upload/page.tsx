@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react"; // 👈 added useRef
 import Cookies from "js-cookie";
 import { API } from "@/services/api";
 
@@ -17,7 +17,10 @@ export default function UploadProductPage() {
   const [size, setSize] = useState("");
   const [category, setCategory] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
+  const [photoURL, setPhotoURL] = useState<string | null>(null); // 👈 for preview
   const [loading, setLoading] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null); // 👈 ref for file input
 
   // ✅ Load categories from API instead of hardcoding
   useEffect(() => {
@@ -41,7 +44,10 @@ export default function UploadProductPage() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setPhoto(file);
+    if (file) {
+      setPhoto(file);
+      setPhotoURL(URL.createObjectURL(file)); // 👈 set preview URL
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,12 +74,12 @@ export default function UploadProductPage() {
       formData.append("category_id", String(Number(category)));
       formData.append("size", size);
       formData.append("language", "english");
-      formData.append("photo", photo);
+      formData.append("image", photo); // <- minimal change: was 'photo', now 'image'
 
       const res = await fetch(API.PRODUCTS.CREATE, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // DO NOT set Content-Type manually
         },
         body: formData,
       });
@@ -90,6 +96,9 @@ export default function UploadProductPage() {
         setSize("");
         setCategory("");
         setPhoto(null);
+        if (photoURL) URL.revokeObjectURL(photoURL); // 👈 revoke object URL
+        setPhotoURL(null); // 👈 clear preview
+        if (fileInputRef.current) fileInputRef.current.value = ""; // 👈 reset file input
       }
     } catch (err) {
       console.error(err);
@@ -178,15 +187,16 @@ export default function UploadProductPage() {
         <div className="col-12">
           <label className="form-label">Photo *</label>
           <input
+            ref={fileInputRef} // 👈 attach ref here
             type="file"
             className="form-control"
             accept="image/*"
             onChange={handleImageUpload}
             required
           />
-          {photo && (
+          {photoURL && (
             <img
-              src={URL.createObjectURL(photo)}
+              src={photoURL}
               alt="Preview"
               className="img-fluid mt-2 rounded"
               style={{ maxHeight: "200px" }}

@@ -18,6 +18,7 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState(""); // ADDED: State for status message
   const { t } = useTranslation(); 
 
   const token = Cookies.get("token");
@@ -26,6 +27,7 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
     e.preventDefault();
 
     setLoading(true);
+    setStatusMessage(""); // Clear previous message
 
     try {
       // form-urlencoded encoding
@@ -47,17 +49,26 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
 
       if (!res.ok) {
         console.error("Failed to submit:", await res.text());
+        setStatusMessage(t("failed_to_submit")); // MODIFIED: Set failure message
         return;
       }
 
+      // MODIFIED: Handle successful submission
+      setStatusMessage(t("submitted")); 
       setName("");
       setEmail("");
       setPhone("");
       setSubject("");
       setMessage("");
-      setIsOpen(false);
+      
+      setTimeout(() => {
+        setIsOpen(false); // Close modal after 3 seconds
+        setStatusMessage(""); // Clear message
+      }, 3000);
+
     } catch (err) {
       console.error("Submit error:", err);
+      setStatusMessage(t("failed_to_submit")); // MODIFIED: Set failure message
     } finally {
       setLoading(false);
     }
@@ -75,7 +86,7 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
 
       {/* Modal */}
       {isOpen && (
-        <div className="fixed mt-50 inset-0 z-50 flex items-center justify-center bg-black/50 ">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 ">
           <div className="relative bg-black bg-opacity-30 border border-white/20 backdrop-blur-md p-6 rounded-lg max-w-md w-full text-white mx-4">
             <button
               className="absolute top-3 right-3 text-gray-300 hover:text-white"
@@ -84,6 +95,19 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
               ✕
             </button>
             <h3 className="text-lg font-bold mb-4 text-glow text-center">{t("send_a_message")}</h3>
+
+            {/* ADDED: Display status message */}
+            {statusMessage && (
+                <div 
+                    className={`p-3 mb-4 rounded text-center font-semibold ${
+                        statusMessage === t("submitted") 
+                            ? 'bg-green-500/20 text-green-300 border border-green-500' 
+                            : 'bg-red-500/20 text-red-300 border border-red-500'
+                    }`}
+                >
+                    {statusMessage}
+                </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
@@ -100,7 +124,6 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full mb-2 p-2 rounded border border-white/30 bg-white/10 placeholder-gray-300 text-white"
-                required
               />
               <input
                 type="tel"
@@ -108,16 +131,25 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full mb-2 p-2 rounded border border-white/30 bg-white/10 placeholder-gray-300 text-white"
+                maxLength={10}
+                pattern="\d{10}"
                 required
               />
-              <input
-                type="text"
-                placeholder={t("subject")}
+
+              {/* Subject Dropdown */}
+              <select
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full mb-2 p-2 rounded border border-white/30 bg-white/10 placeholder-gray-300 text-white"
+                className="w-full mb-2 p-2 rounded border border-white/30 bg-white/10 text-white placeholder-gray-300 appearance-none"
                 required
-              />
+              >
+                <option value="" disabled className="text-gray-300 bg-gray-900">{t("select_subject")}</option>
+                <option value="Book" className="text-white bg-gray-900">{t("book")}</option>
+                <option value="Call Me" className="text-white bg-gray-900">{t("call_me")}</option>
+                <option value="Query" className="text-white bg-gray-900">{t("query")}</option>
+                <option value="Other" className="text-white bg-gray-900">{t("other")}</option>
+              </select>
+
               <textarea
                 placeholder={t("message")}
                 value={message}

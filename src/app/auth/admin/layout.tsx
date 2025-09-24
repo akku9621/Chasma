@@ -79,6 +79,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="admin-layout">
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? "active" : ""}`}>
+        {/* Mobile Close Button */}
+        <button
+          className="btn btn-sm btn-outline-danger d-md-none position-absolute top-0 end-0 m-2"
+          onClick={() => setSidebarOpen(false)}
+        >
+          ✖
+        </button>
+
         <h2 className="sidebar-title">Admin Panel</h2>
         <ul className="sidebar-menu">
           <li>
@@ -101,11 +109,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               ⬆️ Upload Product
             </Link>
           </li>
-          {/* <li>
-            <Link href="/auth/admin/slider" onClick={() => setSidebarOpen(false)}>
-              🎞️ Carousels
-            </Link>
-          </li> */}
           <li>
             <Link href="/auth/admin/slider" onClick={() => setSidebarOpen(false)}>
               🎞️ Carousels
