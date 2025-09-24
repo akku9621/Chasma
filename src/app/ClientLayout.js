@@ -25,7 +25,7 @@ export default function ClientLayout({ children }) {
 
   const { i18n } = useTranslation(); // ✅ hook for changing language
   const [lang, setLang] = useState(i18n.language || "en"); // track current language
-  const { t } = useTranslation(); 
+  const { t } = useTranslation();
 
   const toggleLanguage = () => {
     const newLang = lang === "en" ? "hi" : "en";
@@ -34,14 +34,19 @@ export default function ClientLayout({ children }) {
   };
 
   const navigationItems = [
-    { name: "Home", icon: Home, url: "/" },
-    { name: "Search", icon: Search, url: "/search" },
+    // { name: "Home", icon: Home, url: "/" }, // Home commented out as requested
+    // { name: "Search", icon: Search, url: "/search" }, // Search commented out as requested
   ];
-
+  
   // ✅ If /auth/* → return only children (no header/footer/UI wrapper)
   if (isAuthPage) {
     return <>{children}</>;
   }
+
+  // Define common button classes for consistency
+  const buttonClasses = "px-3 py-1 text-sm bg-purple-600/50 text-white rounded-full hover:bg-purple-700/70 transition glow-effect font-semibold flex-shrink-0";
+  const languageButtonClasses = "px-3 py-1 text-sm bg-white/20 text-white rounded hover:bg-white/30 transition font-semibold flex-shrink-0";
+
 
   // ✅ Else → full UI with header + footer
   return (
@@ -74,56 +79,84 @@ export default function ClientLayout({ children }) {
         }
       `}</style>
 
-      {/* Header */}
-      <header className="glass-effect sticky top-0 z-50 border-b border-white/20">
+      {/* Header - Responsive & No Hamburger */}
+      <header className="bg-slate-900 border-b border-white/20 shadow-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Main Row: Logo and Actions */}
           <div className="flex justify-between items-center h-16">
+            
+            {/* Logo and App Name - Font size adjusted for mobile responsiveness */}
             <Link
               href="/"
-              className="flex items-center space-x-2 group !no-underline hover:!no-underline"
+              className="flex items-center space-x-2 group !no-underline hover:!no-underline py-2 min-w-0"
             >
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center glow-effect group-hover:scale-110 transition-transform">
+              {/* MINIMAL CHANGE: Increased container and Image size for better visibility */}
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center glow-effect group-hover:scale-110 transition-transform flex-shrink-0">
                 <Image
                   src="/pictures/logo_en.png"
                   alt="Logo"
-                  width={20}
-                  height={20}
+                  width={24} // Changed from 20 to 24
+                  height={24} // Changed from 20 to 24
                   className="object-contain"
                 />
               </div>
-              <span className="text-xl font-bold text-white text-glow">
+              {/* App name font size: text-lg for mobile/tablet, text-xl for desktop */}
+              <span className="text-lg md:text-xl font-bold text-white text-glow tracking-wider whitespace-nowrap overflow-hidden text-ellipsis">
                 {t("jyoti_chashma")}
               </span>
             </Link>
 
-            <div className="hidden md:flex items-center space-x-4">
-              {/* Modal Link */}
-              <FormModal linkText={t("contact")} />
+            {/* Desktop Contact/Language */}
+            <div className="hidden md:flex items-center space-x-6">
+              {/* Modal Link - Using consistent button styling */}
+              <FormModal linkText={t("contact")} buttonClassName={buttonClasses} />
 
-              {/* ✅ Single language toggle button */}
+              {/* ✅ Single language toggle button - Using consistent button styling */}
               <button
                 onClick={toggleLanguage}
-                className="px-3 py-1 bg-white/20 text-white rounded hover:bg-white/30 transition"
+                className={languageButtonClasses}
               >
-                {t("en")}
+                {lang === 'en' ? 'English' : 'हिन्दी'}
               </button>
             </div>
 
-            {/* Mobile Menu */}
-            <div className="md:hidden flex items-center space-x-2">
-              {/* Modal Link */}
-              <FormModal linkText="Query" />
+            {/* Mobile Actions - Combined Contact and Language */}
+            <div className="md:hidden flex items-center space-x-2 flex-shrink-0">
+                {/* Modal Link for Mobile - Using consistent button styling */}
+                <FormModal linkText={t("contact")} buttonClassName={buttonClasses} /> 
 
-              {/* ✅ Single language toggle for mobile */}
-              <button
+                {/* ✅ Single language toggle for mobile - Using consistent button styling */}
+                <button
                 onClick={toggleLanguage}
-                className="px-2 py-1 bg-white/20 text-white rounded hover:bg-white/30 transition text-sm"
+                className={languageButtonClasses.replace('px-3', 'px-2')} // Slightly smaller padding for tight mobile space
               >
                 {lang.toUpperCase()}
               </button>
             </div>
           </div>
+          
+          {/* Desktop Navigation Links (Second Row - Hidden on Mobile) */}
+          <nav className="hidden md:flex justify-start space-x-8 h-auto pb-2">
+              {navigationItems.map((item) => (
+                <Link 
+                    key={item.name} 
+                    href={item.url} 
+                    className={`flex items-center space-x-2 text-sm font-medium transition-colors ${
+                        pathname === item.url 
+                            ? "text-cyan-400 border-b-2 border-cyan-400" 
+                            : "text-gray-400 hover:text-white"
+                    } !no-underline hover:!no-underline`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span>{t(item.name.toLowerCase())}</span>
+                </Link>
+              ))}
+          </nav>
+
         </div>
+        
+        {/* Mobile Menu Dropdown - REMOVED */}
       </header>
 
       {/* Main */}

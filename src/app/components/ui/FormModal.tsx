@@ -86,7 +86,7 @@ export default function FormModal({ linkText = "Contact Us" }: ModalProps) {
 
       {/* Modal */}
       {isOpen && (
-        <div className="fixed mt-50 inset-0 z-50 flex items-center justify-center bg-black/50 ">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 ">
           <div className="relative bg-black bg-opacity-30 border border-white/20 backdrop-blur-md p-6 rounded-lg max-w-md w-full text-white mx-4">
             <button
               className="absolute top-3 right-3 text-gray-300 hover:text-white"
