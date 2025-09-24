@@ -51,12 +51,15 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
     4: "Offer" 
   };
 
+  // ✅ Minimal change: include product.id and image link
   const buildWhatsAppMessage = () =>
-    `*${product.name}*\nBrand: Jyoti Chashma\nCategory: ${
+    `*${product.name}* (ID: ${product.id})\nBrand: Jyoti Chashma\nCategory: ${
       categoryMap[product.category_id] || "Eyewear"
     }\nPrice: ₹${product.price}\nDescription: ${
       product.description || "Premium eyewear with latest design."
-    }\nSizes: ${product.size || "Standard"}\nImage: ${product.image_url || ""}`;
+    }\nSizes: ${product.size || "Standard"}\nImage: ${
+      product.image_path ? process.env.NEXT_PUBLIC_BACKEND_URL + "/api/uploads/" + product.image_path : "/pictures/image.png"
+    }`;
 
   const handleShareWithFriends = () => {
     const text = encodeURIComponent(buildWhatsAppMessage());
@@ -152,7 +155,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
         const video = videoRef.current!;
         const canvas = canvasRef.current!;
         const ctx = canvas.getContext("2d")!;
-        canvas.width = 640; // bigger canvas
+        canvas.width = 640;
         canvas.height = 480;
 
         const faceMesh = new FaceMeshClass({
