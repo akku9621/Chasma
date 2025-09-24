@@ -229,9 +229,74 @@ export default function Home() {
     </div>
   );
 
+  // Filters (state)
+  const [filterSize, setFilterSize] = useState(""); // selected size
+  const [filterCategory, setFilterCategory] = useState(null); // selected category
+  const [filterSearch, setFilterSearch] = useState(""); // search text
+
+  const applyFilters = (products) => {
+    return products.filter((p) => {
+      const sizeMatch = filterSize ? p.size?.toLowerCase() === filterSize.toLowerCase() : true;
+      const categoryMatch = filterCategory ? p.category_id === filterCategory : true;
+      const searchMatch = filterSearch
+        ? p.name?.toLowerCase().includes(filterSearch.toLowerCase()) || p.description?.toLowerCase().includes(filterSearch.toLowerCase())
+        : true;
+      return sizeMatch && categoryMatch && searchMatch;
+    });
+  };
+
+  // Filters section above Offer (added Clear Filters button)
+  const renderFiltersSection = () => (
+    <section className="mb-16 flex flex-col md:flex-row justify-center gap-4 items-center">
+      <input
+        type="text"
+        placeholder="Search products..."
+        value={filterSearch}
+        onChange={(e) => setFilterSearch(e.target.value)}
+        className="bg-gray-800 text-white rounded-full px-4 py-2 w-full md:w-64 focus:outline-none placeholder-gray-400"
+      />
+
+      <select
+        value={filterSize}
+        onChange={(e) => setFilterSize(e.target.value)}
+        className="bg-gray-800 text-white rounded-full px-4 py-2 w-full md:w-48 focus:outline-none"
+      >
+        <option value="">All Sizes</option>
+        {[...new Set(allProducts.map((p) => p.size).filter(Boolean))].map((size) => (
+          <option key={size} value={size}>{size}</option>
+        ))}
+      </select>
+
+      <select
+        value={filterCategory || ""}
+        onChange={(e) => setFilterCategory(Number(e.target.value) || null)}
+        className="bg-gray-800 text-white rounded-full px-4 py-2 w-full md:w-48 focus:outline-none"
+      >
+        <option value="">All Categories</option>
+        {Object.entries(dynamicCategories)
+          .filter(([id]) => Number(id) !== 4)
+          .map(([id, cat]) => (
+            <option key={id} value={id}>{cat.name}</option>
+          ))}
+      </select>
+
+      {/* Clear Filters Button */}
+      <button
+        onClick={() => {
+          setFilterSearch("");
+          setFilterSize("");
+          setFilterCategory(null);
+        }}
+        className="bg-gray-700 text-white rounded-full px-4 py-2 w-full md:w-auto hover:bg-gray-600 transition-colors"
+      >
+        Clear Filters
+      </button>
+    </section>
+  );
+
   // Offer section
   const renderOfferSection = () => {
-    const products = allProducts.filter((p) => p.category_id === 4);
+    let products = allProducts.filter((p) => p.category_id === 4);
     if (!products || products.length === 0) {
       return (
         <section className="mb-16">
@@ -242,6 +307,9 @@ export default function Home() {
         </section>
       );
     }
+
+    // Apply filters on offer section too
+    products = applyFilters(products);
 
     const doubled = [...products, ...products];
 
@@ -277,8 +345,11 @@ export default function Home() {
 
   // category sections dynamically
   const renderCategorySection = (categoryId) => {
-    const products = allProducts.filter((p) => p.category_id === categoryId);
-    if (!products || products.length === 0) return null; // skip empty categories
+    let products = allProducts.filter((p) => p.category_id === categoryId);
+    if (!products || products.length === 0) return null;
+
+    // Apply filters
+    products = applyFilters(products);
 
     const page = currentPage[categoryId] || 1;
     const pages = totalPages(products, PRODUCTS_PER_PAGE);
@@ -395,6 +466,9 @@ export default function Home() {
               `}</style>
             </section>
 
+            {/* Filters section moved above Offer */}
+            {renderFiltersSection()}
+
             {renderOfferSection()}
 
             {/* render all categories dynamically */}
@@ -403,44 +477,11 @@ export default function Home() {
               .map((id) => renderCategorySection(Number(id)))}
           </>
         )}
-
-        <section className="text-center mt-4">
-          <h2 className="text-4xl font-bold text-white mb-16 text-glow">{t("why_choose")}</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Shield,
-                title: t("advanced_protection"),
-                description: t("desc1"),
-              },
-              {
-                icon: Eye,
-                title: t("crystal_clear_vision"),
-                description: t("desc2"),
-              },
-              {
-                icon: Zap,
-                title: t("smart_features"),
-                description: t("desc3"),
-              },
-            ].map((feature, index) => (
-              <div key={index} className="glass-effect p-8 rounded-2xl glow-effect group hover:scale-105 transition-all">
-                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:animate-pulse">
-                  <feature.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
-                <p className="text-gray-300 leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-      <div>
-        <Carousel />
       </div>
 
+      {/* Product Modal */}
       {selectedProduct && (
-        <ProductModal product={selectedProduct} isOpen={!!selectedProduct} onClose={() => setSelectedProduct(null)} />
+        <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       )}
     </div>
   );
