@@ -146,7 +146,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
 
         const frameImg = new Image();
         frameImg.crossOrigin = "anonymous";
-        frameImg.src = product.tryon_url || product.image_url || "/pictures/image.png";
+        frameImg.src = product.image_path ? process.env.NEXT_PUBLIC_BACKEND_URL + "/api/uploads/" + product.image_path : "/pictures/image.png";
         frameImgRef.current = frameImg;
 
         const video = videoRef.current!;
@@ -265,7 +265,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
           {/* Product Image */}
           <div className="w-full">
             <img
-              src={product.image_url || "/pictures/image.png"}
+              src={product.image_path ? process.env.NEXT_PUBLIC_BACKEND_URL + "/api/uploads/" + product.image_path : "/pictures/image.png"}
               alt={product.name}
               className="w-full max-h-48 object-contain rounded-lg bg-gray-800"
             />
