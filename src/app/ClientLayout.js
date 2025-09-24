@@ -98,14 +98,14 @@ export default function ClientLayout({ children }) {
 
             <div className="hidden md:flex items-center space-x-4">
               {/* Modal Link */}
-              <FormModal linkText="Query" />
+              <FormModal linkText={t("contact")} />
 
               {/* ✅ Single language toggle button */}
               <button
                 onClick={toggleLanguage}
                 className="px-3 py-1 bg-white/20 text-white rounded hover:bg-white/30 transition"
               >
-                {lang.toUpperCase()}
+                {t("en")}
               </button>
             </div>
 
