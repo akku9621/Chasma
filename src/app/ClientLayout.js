@@ -2,8 +2,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Home,
-  Search,
   Zap,
   Facebook,
   Twitter,

@@ -1,6 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check } from 'lucide-react';
+import React from 'react';
 
 // Input Component
 export const Input = React.forwardRef(({ className = "", type = "text", ...props }, ref) => {

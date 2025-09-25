@@ -1,8 +1,8 @@
 "use client"
 import React, { useState, useEffect, useCallback } from "react";
-import { Search, Filter, Grid, List, SortAsc } from "lucide-react";
-import { Input } from "../components/ui/Input";
-import { Button } from "../components/ui/Button";
+// import { Search, Filter, Grid, List, SortAsc } from "lucide-react";
+// import { Input } from "../components/ui/Input";
+// import { Button } from "../components/ui/Button";
 
 import { PRODUCTS, CATEGORIES } from "../utils/constant";
 
