@@ -19,7 +19,7 @@ interface Carousel {
 export default function CarouselPage() {
   const [carousels, setCarousels] = useState<Carousel[]>([]);
   const [page, setPage] = useState(1);
-  const [size, _setSize] = useState(10); // ✅ prefixed with _ to avoid unused warning
+  const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -44,18 +44,7 @@ export default function CarouselPage() {
       const res = await fetch(`${API.CAROUSELS.GET_ALL}?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      let data: any;
-      const contentType = res.headers.get("content-type") || "";
-      if (contentType.includes("application/json")) {
-        data = await res.json();
-      } else {
-        const text = await res.text();
-        console.error("Expected JSON but got:", text);
-        alert("❌ Failed to fetch carousels: server returned unexpected response.");
-        setLoading(false);
-        return;
-      }
+      const data = await res.json();
 
       if (!res.ok) {
         console.error("Error fetching carousels:", data);
@@ -101,17 +90,7 @@ export default function CarouselPage() {
         body: fd,
       });
 
-      let result: any;
-      const contentType = res.headers.get("content-type") || "";
-      if (contentType.includes("application/json")) {
-        result = await res.json();
-      } else {
-        const text = await res.text();
-        console.error("Expected JSON but got:", text);
-        alert("❌ Failed to create carousel: server returned unexpected response.");
-        return;
-      }
-
+      const result = await res.json();
       if (!res.ok) {
         console.error("Create failed:", result);
         alert("❌ Failed to create carousel.");
@@ -134,67 +113,40 @@ export default function CarouselPage() {
     if (!token || !editingCarousel) return;
 
     try {
-      const payload = { // ✅ changed from let → const
-        name: formData.name || editingCarousel.name,
-        slug: editingCarousel.slug,
-        description: formData.description || editingCarousel.description,
-        image_path: editingCarousel.image_path,
-        image_folder: editingCarousel.image_folder || "",
-      };
+      let res;
 
-      // ✅ Only upload new image if selected
+      // ✅ If a new image file is selected, use FormData
       if (formData.image instanceof File) {
         const fd = new FormData();
-        fd.append("file", formData.image);
+        fd.append("name", formData.name || editingCarousel.name);
+        fd.append("description", formData.description || editingCarousel.description);
+        fd.append("image", formData.image); // send new image
 
-        const uploadRes = await fetch(API.CAROUSELS.UPLOAD_IMAGE, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
+        res = await fetch(API.CAROUSELS.UPDATE(String(editingCarousel.id)), {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` }, // ✅ no Content-Type for FormData
           body: fd,
         });
-
-        let uploadData: any;
-        const contentType = uploadRes.headers.get("content-type") || "";
-        if (contentType.includes("application/json")) {
-          uploadData = await uploadRes.json();
-        } else {
-          const text = await uploadRes.text();
-          console.error("Expected JSON but got:", text);
-          alert("❌ Failed to upload new image: server returned unexpected response.");
-          return;
-        }
-
-        if (!uploadRes.ok) {
-          console.error("Image upload failed:", uploadData);
-          alert("❌ Failed to upload new image");
-          return;
-        }
-
-        payload.image_path = uploadData.image_path;
-        payload.image_folder = uploadData.image_folder;
-      }
-
-      // ✅ Send JSON for update
-      const res = await fetch(API.CAROUSELS.UPDATE(String(editingCarousel.id)), {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      let result: any;
-      const contentType = res.headers.get("content-type") || "";
-      if (contentType.includes("application/json")) {
-        result = await res.json();
       } else {
-        const text = await res.text();
-        console.error("Expected JSON but got:", text);
-        alert("❌ Failed to update carousel: server returned unexpected response.");
-        return;
+        // ✅ No new file, send JSON with existing image
+        const payload = {
+          name: formData.name || editingCarousel.name,
+          description: formData.description || editingCarousel.description,
+          image_path: editingCarousel.image_path,
+          image_folder: editingCarousel.image_folder || "",
+        };
+
+        res = await fetch(API.CAROUSELS.UPDATE(String(editingCarousel.id)), {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
       }
 
+      const result = await res.json();
       if (!res.ok) {
         console.error("Update failed:", result);
         alert("❌ Failed to update carousel.");
@@ -227,13 +179,7 @@ export default function CarouselPage() {
       } else {
         let data = null;
         try {
-          const contentType = res.headers.get("content-type") || "";
-          if (contentType.includes("application/json")) {
-            data = await res.json();
-          } else {
-            const text = await res.text();
-            console.error("Delete returned unexpected response:", text);
-          }
+          data = await res.json();
         } catch {
           // no body
         }
