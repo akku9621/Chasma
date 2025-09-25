@@ -19,7 +19,7 @@ interface Carousel {
 export default function CarouselPage() {
   const [carousels, setCarousels] = useState<Carousel[]>([]);
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10);
+  const [size, _setSize] = useState(10); // ✅ prefixed with _ to avoid unused warning
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -134,7 +134,7 @@ export default function CarouselPage() {
     if (!token || !editingCarousel) return;
 
     try {
-      let payload = {
+      const payload = { // ✅ changed from let → const
         name: formData.name || editingCarousel.name,
         slug: editingCarousel.slug,
         description: formData.description || editingCarousel.description,
