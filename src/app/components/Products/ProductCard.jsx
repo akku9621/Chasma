@@ -1,7 +1,7 @@
 import React from "react";
 import Button from "../ui/Button";
 import Badge from "../ui/Badge";
-import { Star, ShoppingBag, Eye, Zap } from "lucide-react";
+import { Star, Eye } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export default function ProductCard({ product, viewMode, onClick }) {
