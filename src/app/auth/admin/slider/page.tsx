@@ -44,7 +44,18 @@ export default function CarouselPage() {
       const res = await fetch(`${API.CAROUSELS.GET_ALL}?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
+
+      let data: any;
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.error("Expected JSON but got:", text);
+        alert("❌ Failed to fetch carousels: server returned unexpected response.");
+        setLoading(false);
+        return;
+      }
 
       if (!res.ok) {
         console.error("Error fetching carousels:", data);
@@ -90,13 +101,28 @@ export default function CarouselPage() {
         body: fd,
       });
 
-      const result = await res.json();
+      let result: any;
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        result = await res.json();
+      } else {
+        const text = await res.text();
+        console.error("Expected JSON but got:", text);
+        alert("❌ Failed to create carousel: server returned unexpected response.");
+        return;
+      }
+
       if (!res.ok) {
         console.error("Create failed:", result);
         alert("❌ Failed to create carousel.");
       } else {
         alert("✅ Carousel created successfully.");
-        setFormData({});
+        setFormData({}); // ✅ reset all form data
+        // ✅ reset file input manually
+        const fileInput = document.querySelector<HTMLInputElement>(
+          'input[type="file"]'
+        );
+        if (fileInput) fileInput.value = "";
         fetchCarousels();
       }
     } catch (err) {
@@ -108,11 +134,47 @@ export default function CarouselPage() {
     if (!token || !editingCarousel) return;
 
     try {
-      const payload = {
+      let payload = {
         name: formData.name || editingCarousel.name,
+        slug: editingCarousel.slug,
         description: formData.description || editingCarousel.description,
+        image_path: editingCarousel.image_path,
+        image_folder: editingCarousel.image_folder || "",
       };
 
+      // ✅ Only upload new image if selected
+      if (formData.image instanceof File) {
+        const fd = new FormData();
+        fd.append("file", formData.image);
+
+        const uploadRes = await fetch(API.CAROUSELS.UPLOAD_IMAGE, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: fd,
+        });
+
+        let uploadData: any;
+        const contentType = uploadRes.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+          uploadData = await uploadRes.json();
+        } else {
+          const text = await uploadRes.text();
+          console.error("Expected JSON but got:", text);
+          alert("❌ Failed to upload new image: server returned unexpected response.");
+          return;
+        }
+
+        if (!uploadRes.ok) {
+          console.error("Image upload failed:", uploadData);
+          alert("❌ Failed to upload new image");
+          return;
+        }
+
+        payload.image_path = uploadData.image_path;
+        payload.image_folder = uploadData.image_folder;
+      }
+
+      // ✅ Send JSON for update
       const res = await fetch(API.CAROUSELS.UPDATE(String(editingCarousel.id)), {
         method: "PUT",
         headers: {
@@ -122,13 +184,24 @@ export default function CarouselPage() {
         body: JSON.stringify(payload),
       });
 
-      const result = await res.json();
+      let result: any;
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        result = await res.json();
+      } else {
+        const text = await res.text();
+        console.error("Expected JSON but got:", text);
+        alert("❌ Failed to update carousel: server returned unexpected response.");
+        return;
+      }
+
       if (!res.ok) {
         console.error("Update failed:", result);
         alert("❌ Failed to update carousel.");
       } else {
         alert("✅ Carousel updated successfully.");
         setEditingCarousel(null);
+        setFormData({});
         fetchCarousels();
       }
     } catch (err) {
@@ -147,13 +220,20 @@ export default function CarouselPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.status === 204) {
+      // ✅ handle both 204 and 200 success
+      if (res.status === 204 || res.status === 200) {
         alert("✅ Carousel deleted successfully.");
         fetchCarousels();
       } else {
         let data = null;
         try {
-          data = await res.json();
+          const contentType = res.headers.get("content-type") || "";
+          if (contentType.includes("application/json")) {
+            data = await res.json();
+          } else {
+            const text = await res.text();
+            console.error("Delete returned unexpected response:", text);
+          }
         } catch {
           // no body
         }
@@ -219,6 +299,7 @@ export default function CarouselPage() {
               <table className="table table-bordered align-middle">
                 <thead className="table-light">
                   <tr>
+                    <th>#</th> {/* ✅ Added */}
                     <th>ID</th>
                     <th>Photo</th>
                     <th>Name</th>
@@ -228,13 +309,14 @@ export default function CarouselPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {textCarousels.map((c) => (
+                  {textCarousels.map((c, index) => (
                     <tr key={c.id}>
+                      <td>{(page - 1) * size + index + 1}</td> {/* ✅ Serial No */}
                       <td>{c.id}</td>
                       <td>
                         {c.image_path ? (
                           <img
-                            src={`${c.image_folder}/${c.image_path}`}
+                            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/${c.image_path}`}
                             alt={c.name}
                             style={{
                               width: "80px",
@@ -258,6 +340,7 @@ export default function CarouselPage() {
                             setFormData({
                               name: c.name,
                               description: c.description,
+                              image: null, // ✅ reset file on edit start
                             });
                           }}
                         >
@@ -286,6 +369,7 @@ export default function CarouselPage() {
               <table className="table table-bordered align-middle">
                 <thead className="table-light">
                   <tr>
+                    <th>#</th> {/* ✅ Added */}
                     <th>ID</th>
                     <th>Photo</th>
                     <th>Name</th>
@@ -295,8 +379,9 @@ export default function CarouselPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {videoCarousels.map((c) => (
+                  {videoCarousels.map((c, index) => (
                     <tr key={c.id}>
+                      <td>{(page - 1) * size + index + 1}</td> {/* ✅ Serial No */}
                       <td>{c.id}</td>
                       <td>
                         {c.image_path ? (
@@ -316,7 +401,14 @@ export default function CarouselPage() {
                       </td>
                       <td>{c.name}</td>
                       <td>
-                        <div dangerouslySetInnerHTML={{ __html: c.description }} />
+                        <div
+                          style={{
+                            width: "160px", // ✅ Small video
+                            height: "90px",
+                            overflow: "hidden",
+                          }}
+                          dangerouslySetInnerHTML={{ __html: c.description }}
+                        />
                       </td>
                       <td>{c.slug}</td>
                       <td>
@@ -327,6 +419,7 @@ export default function CarouselPage() {
                             setFormData({
                               name: c.name,
                               description: c.description,
+                              image: null, // ✅ reset file on edit start
                             });
                           }}
                         >
@@ -402,7 +495,9 @@ export default function CarouselPage() {
                 <input
                   type="file"
                   className="form-control mb-2"
-                  disabled // 👈 update is JSON only
+                  onChange={(e) =>
+                    handleFormChange("image", e.target.files ? e.target.files[0] : null)
+                  }
                 />
               </div>
               <div className="modal-footer">
