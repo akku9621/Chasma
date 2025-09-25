@@ -244,14 +244,14 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
   return (
     <div className="fixed inset-0 z-[9999] flex items-start justify-center" aria-hidden={false}>
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black bg-opacity-30" onClick={onClose} />
+      <div className="absolute inset-0 bg-opacity-30" onClick={onClose} />
 
       {/* Modal container */}
       <div
         role="dialog"
         aria-modal="true"
         className={
-          "relative w-full max-w-sm sm:max-w-md bg-gray-900 bg-opacity-95 backdrop-blur-md rounded-2xl border border-gray-700 shadow-2xl overflow-hidden mx-3 mt-[10vh] transform transition-all duration-220 ease-out " +
+          "relative w-full max-w-sm sm:max-w-md bg-gray-900 bg-opacity-95 backdrop-blur-md rounded-2xl border border-gray-700 shadow-2xl overflow-hidden mx-3 mt-[1vh] transform transition-all duration-220 ease-out " +
           (visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-3 scale-95")
         }
       >
@@ -266,11 +266,11 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
 
         <div className="flex flex-col p-4 space-y-3">
           {/* Product Image */}
-          <div className="w-full">
+          <div className="w-full h-48 flex items-center justify-center bg-gray-800 rounded-lg overflow-hidden">
             <img
               src={product.image_path ? process.env.NEXT_PUBLIC_BACKEND_URL + "/api/uploads/" + product.image_path : "/pictures/image.png"}
               alt={product.name}
-              className="w-full max-h-48 object-contain rounded-lg bg-gray-800"
+              className="max-w-full max-h-full object-contain"
             />
           </div>
 
