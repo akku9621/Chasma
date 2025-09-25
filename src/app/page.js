@@ -194,7 +194,7 @@ export default function Home() {
           <img
             src={product.image_path ? process.env.NEXT_PUBLIC_BACKEND_URL + "/api/uploads/" + product.image_path : "/pictures/image.png"}
             alt={product.name}
-            className="w-full h-36 sm:h-48 object-cover rounded-xl mb-3 sm:mb-4 transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-36 sm:h-48 object-contain rounded-xl mb-3 sm:mb-4 transition-all duration-500 bg-gray-800"
           />
           <div className="absolute top-2 right-2 bg-purple-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
             {dynamicCategories[product.category_id]?.name || product.category_name || `Category ${product.category_id}`}
