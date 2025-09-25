@@ -174,12 +174,13 @@ export default function UploadProductPage() {
 
         {/* Description */}
         <div className="col-12">
-          <label className="form-label">Description</label>
+          <label className="form-label">Description *</label>
           <textarea
             className="form-control"
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            required
           ></textarea>
         </div>
 

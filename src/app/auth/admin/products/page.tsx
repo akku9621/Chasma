@@ -248,6 +248,7 @@ export default function ProductsPage() {
           <table className="table table-bordered align-middle">
             <thead className="table-light">
               <tr>
+                <th>#</th> {/* ✅ Added Serial Number column */}
                 <th>ID</th>
                 <th>Photo</th>
                 <th>Name</th>
@@ -259,13 +260,20 @@ export default function ProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
+              {products.map((p, index) => (
                 <tr key={p.id}>
+                  <td>{(page - 1) * size + index + 1}</td> {/* ✅ Serial No. */}
                   <td>{p.id}</td>
                   <td>
                     {p.image_path ? (
                       <img
-                        src={`${p.image_folder}/${p.image_path}`}
+                        src={
+                          p.image_path
+                            ? process.env.NEXT_PUBLIC_BACKEND_URL +
+                              "/api/uploads/" +
+                              p.image_path
+                            : "/pictures/image.png"
+                        }
                         alt={p.name}
                         style={{ width: "60px", height: "60px", objectFit: "cover" }}
                         className="rounded"
