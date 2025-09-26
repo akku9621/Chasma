@@ -98,17 +98,17 @@ export default function Home() {
   }, []);
 
   // auto-scroll to Offer section on first load (smooth)
-  useEffect(() => {
-    if (!offerSectionRef.current) return;
-    const t = setTimeout(() => {
-      try {
-        offerSectionRef.current.scrollIntoView({ behavior: "smooth" });
-      } catch (e) {
-        /* ignore */
-      }
-    }, 350);
-    return () => clearTimeout(t);
-  }, [allProducts]);
+  // useEffect(() => {
+  //   if (!offerSectionRef.current) return;
+  //   const t = setTimeout(() => {
+  //     try {
+  //       offerSectionRef.current.scrollIntoView({ behavior: "smooth" });
+  //     } catch (e) {
+  //       /* ignore */
+  //     }
+  //   }, 350);
+  //   return () => clearTimeout(t);
+  // }, [allProducts]);
 
   // Smooth, seamless auto-scroller for Offer section (iOS compatible)
   useEffect(() => {
