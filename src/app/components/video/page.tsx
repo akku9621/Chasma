@@ -15,9 +15,7 @@ interface CarouselItem {
 
 export default function VideoCarousel() {
   const [videos, setVideos] = useState<CarouselItem[]>([]);
-  const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const requestRef = useRef<number | null>(null);
   const { t } = useTranslation(); 
 
   // Fetch videos
@@ -58,26 +56,60 @@ export default function VideoCarousel() {
     fetchVideos();
   }, []);
 
-  // Smooth auto-scroll using requestAnimationFrame
+  // Auto-scroll like Offer section
   useEffect(() => {
-    const step = () => {
-      if (scrollRef.current && !isPaused) {
-        const container = scrollRef.current;
-        container.scrollLeft += 0.5;
-        if (container.scrollLeft + container.clientWidth >= container.scrollWidth) {
-          container.scrollLeft = 0;
-        }
+    const container = scrollRef.current;
+    if (!container || videos.length === 0) return;
+
+    const doubled = [...videos, ...videos]; // duplicate videos for seamless scroll
+    let running = true;
+    const speed = 40; // pixels per second
+    let lastTime = performance.now();
+
+    const step = (time: number) => {
+      if (!running || !container) return;
+
+      const delta = (time - lastTime) / 1000;
+      lastTime = time;
+
+      container.scrollBy({ left: speed * delta, behavior: "auto" });
+
+      const halfWidth = container.scrollWidth / 2;
+      if (container.scrollLeft >= halfWidth) {
+        container.scrollLeft -= halfWidth;
       }
-      requestRef.current = requestAnimationFrame(step);
+
+      requestAnimationFrame(step);
     };
 
-    requestRef.current = requestAnimationFrame(step);
-    return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    requestAnimationFrame(step);
+
+    const pause = () => (running = false);
+    const resume = () => {
+      if (!running) {
+        running = true;
+        lastTime = performance.now();
+        requestAnimationFrame(step);
+      }
     };
-  }, [isPaused]);
+
+    container.addEventListener("mouseenter", pause);
+    container.addEventListener("mouseleave", resume);
+    container.addEventListener("touchstart", pause, { passive: true });
+    container.addEventListener("touchend", resume, { passive: true });
+
+    return () => {
+      running = false;
+      container.removeEventListener("mouseenter", pause);
+      container.removeEventListener("mouseleave", resume);
+      container.removeEventListener("touchstart", pause);
+      container.removeEventListener("touchend", resume);
+    };
+  }, [videos]);
 
   if (!videos.length) return null;
+
+  const doubledVideos = [...videos, ...videos];
 
   return (
     <section className="relative w-full overflow-hidden">
@@ -87,13 +119,11 @@ export default function VideoCarousel() {
       <div
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto no-scrollbar"
-        style={{ scrollBehavior: "smooth" }}
-        onPointerEnter={() => setIsPaused(true)}
-        onPointerLeave={() => setIsPaused(false)}
+        style={{ scrollBehavior: "auto", WebkitOverflowScrolling: "touch" }}
       >
-        {videos.map((video: CarouselItem) => (
+        {doubledVideos.map((video: CarouselItem, idx) => (
           <div
-            key={video.id}
+            key={`${video.id}_${idx}`}
             className="flex-shrink-0 w-[315px] h-[560px] rounded-2xl overflow-hidden shadow-lg bg-black"
           >
             <div
