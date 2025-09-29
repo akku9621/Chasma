@@ -16,6 +16,7 @@ interface Product {
   image_folder: string;
   language?: string;
   is_active?: boolean;
+  images?: { id: number; image_path: string }[]; // 👈 added images array
 }
 
 export default function ProductsPage() {
@@ -248,9 +249,10 @@ export default function ProductsPage() {
           <table className="table table-bordered align-middle">
             <thead className="table-light">
               <tr>
-                <th>#</th> {/* ✅ Added Serial Number column */}
+                <th>#</th> {/* ✅ Serial Number column */}
                 <th>ID</th>
                 <th>Photo</th>
+                <th>Images</th> {/* ✅ New multiple images column */}
                 <th>Name</th>
                 <th>Price</th>
                 <th>Size</th>
@@ -280,6 +282,23 @@ export default function ProductsPage() {
                       />
                     ) : (
                       "No image"
+                    )}
+                  </td>
+                  <td>
+                    {Array.isArray(p.images) && p.images.length > 0 ? (
+                      <div className="d-flex flex-wrap">
+                        {p.images.map((img) => (
+                          <img
+                            key={img.id}
+                            src={process.env.NEXT_PUBLIC_BACKEND_URL + "/api/uploads/" + img.image_path}
+                            alt={`img-${img.id}`}
+                            style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                            className="me-1 mb-1 rounded"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      "No images"
                     )}
                   </td>
                   <td>{p.name}</td>

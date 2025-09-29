@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { X, MessageCircle, Share2, Eye } from "lucide-react";
+import { X, MessageCircle, Share2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import "./virtualtryon.css"; // optional styling
 import { useTranslation } from "react-i18next";
 
@@ -27,6 +27,9 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
   const [showTryOn, setShowTryOn] = useState(false);
   const { t } = useTranslation(); 
 
+  // Slider state
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   // --- Virtual Try-On refs and state ---
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -43,6 +46,10 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
     }
   }, [isOpen, product]);
 
+  useEffect(() => {
+    setCurrentImageIndex(0); // reset slider when product changes
+  }, [product]);
+
   // --- WhatsApp share ---
   const categoryMap: Record<number, string> = { 
     1: "Men", 
@@ -51,7 +58,6 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
     4: "Offer" 
   };
 
-  // ✅ Minimal change: include product.id and image link
   const buildWhatsAppMessage = () =>
     `*${product.name}* (ID: ${product.id})\nBrand: Jyoti Chashma\nCategory: ${
       categoryMap[product.category_id] || "Eyewear"
@@ -71,7 +77,6 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
     window.open(`https://wa.me/918299562428?text=${text}`, "_blank");
   };
 
-  // --- Render tab content ---
   const renderTabContent = () => {
     switch (activeTab) {
       case "Overview":
@@ -111,7 +116,6 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
     }
   };
 
-  // --- Virtual Try-On logic ---
   const stopCameraAndAnimation = () => {
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
@@ -241,6 +245,17 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
 
   if (!isOpen || !product) return null;
 
+  // Slider controls
+  const handlePrev = () => {
+    if (!product.images || product.images.length === 0) return;
+    setCurrentImageIndex((prev) => (prev === 0 ? product.images.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    if (!product.images || product.images.length === 0) return;
+    setCurrentImageIndex((prev) => (prev === product.images.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-start justify-center" aria-hidden={false}>
       {/* Backdrop */}
@@ -265,13 +280,38 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
         </button>
 
         <div className="flex flex-col p-4 space-y-3">
-          {/* Product Image */}
-          <div className="w-full h-48 flex items-center justify-center bg-gray-800 rounded-lg overflow-hidden">
-            <img
-              src={product.image_path ? process.env.NEXT_PUBLIC_BACKEND_URL + "/api/uploads/" + product.image_path : "/pictures/image.png"}
-              alt={product.name}
-              className="max-w-full max-h-full object-contain"
-            />
+          {/* Product Image + Slider */}
+          <div className="w-full flex flex-col items-center justify-center bg-gray-800 rounded-lg overflow-hidden space-y-2">
+            {/* Main Image (dynamic slider) */}
+            <div className="relative w-full h-48 flex items-center justify-center bg-gray-800 rounded-lg overflow-hidden">
+              <img
+                src={
+                  product.images && product.images.length > 0
+                    ? process.env.NEXT_PUBLIC_BACKEND_URL + "/api/uploads/" + product.images[currentImageIndex].image_path
+                    : product.image_path
+                    ? process.env.NEXT_PUBLIC_BACKEND_URL + "/api/uploads/" + product.image_path
+                    : "/pictures/image.png"
+                }
+                alt={product.name}
+                className="max-w-full max-h-full object-contain"
+              />
+              {product.images && product.images.length > 1 && (
+                <>
+                  <button
+                    className="absolute left-1 top-1/2 transform -translate-y-1/2 bg-gray-700 hover:bg-gray-600 text-white p-1 rounded-full"
+                    onClick={handlePrev}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-gray-700 hover:bg-gray-600 text-white p-1 rounded-full"
+                    onClick={handleNext}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Product Info */}
