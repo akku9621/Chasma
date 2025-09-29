@@ -1,32 +1,35 @@
 "use client";
 import React, { useState, useEffect, useRef, ReactNode } from "react";
 import { Bot, X } from "lucide-react";
+import { useTranslation } from "react-i18next"; // ✅ Import i18n hook
 
+// ✅ Use i18n keys for questions and answers
 const FAQS: Record<string, string> = {
-  "where is your shop": "Our optical shop is JYOTI NETRA SEVA & JYOTI CHASHMA SAGAR which is located at College Road Zamania Railway Station, Ghazipur, UP, India, Pin 232331",
-  "what are your timings": "We are open daily from 08 AM to 08 PM.",
-  "do you provide eye testing": "Yes, we offer free computerized eye testing in-store.",
-  "do you sell prescription glasses": "Yes, we provide prescription glasses with single vision, bifocal, and progressive lenses.",
-  "do you sell branded frames": "Yes, we stock brands like Ray-Ban, Oakley, Fastrack, Vogue, and more.",
-  "do you have budget frames": "Yes, we have stylish frames starting from just Rs. 300.",
-  "do you sell contact lenses": "Yes, we sell daily, monthly, and yearly contact lenses from leading brands.",
-  "do you sell colored lenses": "Yes, colored cosmetic lenses are available in multiple shades.",
-  "do you provide home delivery": "Yes, we provide home delivery for glasses and lenses within the city.",
-  "how long does it take to make glasses": "It usually takes 1–3 days depending on the lens type.",
-  "do you repair glasses": "Yes, we provide frame adjustments and minor repairs.",
-  "do you replace lenses in existing frames": "Yes, bring your frame and we will fit new lenses.",
-  "do you have kids frames": "Yes, we have a wide collection of lightweight and durable kids’ frames.",
-  "do you provide blue light filter glasses": "Yes, we have anti-glare and blue light blocking lenses for computer/mobile use.",
-  "do you sell sunglasses": "Yes, we stock polarized and UV-protected sunglasses in many styles.",
-  "can i get progressive lenses": "Yes, progressive / multifocal lenses are available.",
-  "do you provide warranty": "Yes, most frames and lenses come with warranty.",
-  "do you accept digital payments": "Yes, we accept UPI, debit/credit cards, and net banking.",
-  "do you provide discounts": "Yes, we have seasonal discounts and special offers on select brands.",
-  "do you have corporate tie-ups": "Yes, we offer bulk/corporate packages for companies.",
-  "can i book an appointment": "Yes, you can call or WhatsApp us to book an eye test appointment.",
+  where_is_your_shop: "answer_where_is_your_shop",
+  what_are_your_timings: "answer_what_are_your_timings",
+  do_you_provide_eye_testing: "answer_do_you_provide_eye_testing",
+  do_you_sell_prescription_glasses: "answer_do_you_sell_prescription_glasses",
+  do_you_sell_branded_frames: "answer_do_you_sell_branded_frames",
+  do_you_have_budget_frames: "answer_do_you_have_budget_frames",
+  do_you_sell_contact_lenses: "answer_do_you_sell_contact_lenses",
+  do_you_sell_colored_lenses: "answer_do_you_sell_colored_lenses",
+  do_you_provide_home_delivery: "answer_do_you_provide_home_delivery",
+  how_long_does_it_take_to_make_glasses: "answer_how_long_does_it_take_to_make_glasses",
+  do_you_repair_glasses: "answer_do_you_repair_glasses",
+  do_you_replace_lenses_in_existing_frames: "answer_do_you_replace_lenses_in_existing_frames",
+  do_you_have_kids_frames: "answer_do_you_have_kids_frames",
+  do_you_provide_blue_light_filter_glasses: "answer_do_you_provide_blue_light_filter_glasses",
+  do_you_sell_sunglasses: "answer_do_you_sell_sunglasses",
+  can_i_get_progressive_lenses: "answer_can_i_get_progressive_lenses",
+  do_you_provide_warranty: "answer_do_you_provide_warranty",
+  do_you_accept_digital_payments: "answer_do_you_accept_digital_payments",
+  do_you_provide_discounts: "answer_do_you_provide_discounts",
+  do_you_have_corporate_tie_ups: "answer_do_you_have_corporate_tie_ups",
+  can_i_book_an_appointment: "answer_can_i_book_an_appointment",
 };
 
 export default function ChatBotButton() {
+  const { t } = useTranslation(); // ✅ Initialize i18n
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<{ from: "user" | "bot"; text: string | ReactNode }[]>([]);
   const [input, setInput] = useState("");
@@ -34,18 +37,18 @@ export default function ChatBotButton() {
 
   const fallbackReply = (
     <span>
-      For further queries, please{" "}
+      {t("for_further_queries_please")}{" "}
       <a href="tel:+918299562428" className="text-cyan-400 underline">
-        📞 Call us
+        📞 {t("call_us")}
       </a>{" "}
-      or{" "}
+      {t("or")}{" "}
       <a
         href="https://wa.me/918299562428"
         target="_blank"
         rel="noopener noreferrer"
         className="text-green-400 underline"
       >
-        💬 WhatsApp us
+        💬 {t("whatsapp_us")}
       </a>
       .
     </span>
@@ -55,16 +58,16 @@ export default function ChatBotButton() {
     const userMessage = (text ?? input).trim();
     if (!userMessage) return;
 
-    setMessages((prev) => [...prev, { from: "user", text: userMessage }]);
+    // ✅ Display translated question if clicked from suggestion
+    const displayUserMessage = fromSuggestion ? t(userMessage) : userMessage;
+
+    setMessages((prev) => [...prev, { from: "user", text: displayUserMessage }]);
 
     let reply: string | ReactNode = fallbackReply;
     if (fromSuggestion) {
-      const lower = userMessage.toLowerCase();
-      for (const q in FAQS) {
-        if (lower.includes(q)) {
-          reply = FAQS[q];
-          break;
-        }
+      const key = Object.keys(FAQS).find((k) => k === text);
+      if (key) {
+        reply = t(FAQS[key]); // ✅ Use i18n key for answer
       }
     }
 
@@ -93,7 +96,7 @@ export default function ChatBotButton() {
           <div className="w-full sm:w-96 bg-gray-900 text-white p-4 flex flex-col">
             {/* Header */}
             <div className="flex justify-between items-center border-b border-gray-700 pb-2 mb-4">
-              <h2 className="text-lg font-bold">Chat Assistant</h2>
+              <h2 className="text-lg font-bold">{t("chat_assistant")}</h2>
               <button onClick={() => setOpen(false)}>
                 <X className="w-6 h-6" />
               </button>
@@ -124,7 +127,7 @@ export default function ChatBotButton() {
                   onClick={() => handleSend(q, true)}
                   className="bg-gray-700 hover:bg-gray-600 text-sm px-3 py-1 rounded-lg"
                 >
-                  {q}
+                  {t(q)}
                 </button>
               ))}
             </div>
@@ -136,14 +139,14 @@ export default function ChatBotButton() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Ask me something..."
+                placeholder={t("ask_me_something")}
                 className="flex-1 bg-gray-800 text-white px-3 py-2 rounded-l-md focus:outline-none"
               />
               <button
                 onClick={() => handleSend()}
                 className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-md"
               >
-                Send
+                {t("send")}
               </button>
             </div>
           </div>
