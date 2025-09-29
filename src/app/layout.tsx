@@ -17,9 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "JYOTI NETRA SEVA & JYOTI CHASHMA SAGAR – Eyeglasses & Sunglasses",
+  title: "JYOTI NETRA SEVA & JYOTI CHASHMA SAGAR",
   description:
-    "Sagar's trusted opticians & eye care. Premium frames, trendy eyewear, and personalized service.",
+    "JYOTI NETRA SEVA & JYOTI CHASHMA SAGAR's trusted opticians & eye care. Premium frames, trendy eyewear, and personalized service.",
 };
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
@@ -41,7 +41,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
         {/* ✅ Wrap everything with AppProviders (i18n + context) */}
         <AppProviders>
           <ClientLayout>{children}</ClientLayout>
