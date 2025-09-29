@@ -29,7 +29,7 @@ export default function Home() {
   const [allProducts, setAllProducts] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const { t } = useTranslation(); 
+  const { t } = useTranslation();
 
   // pagination per category (1..3). Offer is a scroller, not paginated.
   const [currentPage, setCurrentPage] = useState({
@@ -48,6 +48,32 @@ export default function Home() {
 
   // dynamic categories from API
   const [dynamicCategories, setDynamicCategories] = useState({ ...CATEGORY_MAP });
+
+  // dropdown state
+  const [showSizeDropdown, setShowSizeDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const sizeDropdownRef = useRef(null);
+  const categoryDropdownRef = useRef(null);
+
+  // ✅ close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        sizeDropdownRef.current &&
+        !sizeDropdownRef.current.contains(event.target)
+      ) {
+        setShowSizeDropdown(false);
+      }
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target)
+      ) {
+        setShowCategoryDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // ✅ fetch categories API once
   useEffect(() => {
@@ -98,19 +124,6 @@ export default function Home() {
 
     loadProducts();
   }, []);
-
-  // auto-scroll to Offer section on first load (smooth)
-  // useEffect(() => {
-  //   if (!offerSectionRef.current) return;
-  //   const t = setTimeout(() => {
-  //     try {
-  //       offerSectionRef.current.scrollIntoView({ behavior: "smooth" });
-  //     } catch (e) {
-  //       /* ignore */
-  //     }
-  //   }, 350);
-  //   return () => clearTimeout(t);
-  // }, [allProducts]);
 
   // Smooth, seamless auto-scroller for Offer section (iOS compatible)
   useEffect(() => {
@@ -194,12 +207,20 @@ export default function Home() {
       <div className="p-3 sm:p-4 bg-gray-900 rounded-[15px] flex flex-col h-full text-center">
         <div className="relative">
           <img
-            src={product.image_path ? process.env.NEXT_PUBLIC_BACKEND_URL + "/api/uploads/" + product.image_path : "/pictures/image.png"}
+            src={
+              product.image_path
+                ? process.env.NEXT_PUBLIC_BACKEND_URL +
+                  "/api/uploads/" +
+                  product.image_path
+                : "/pictures/image.png"
+            }
             alt={product.name}
             className="w-full h-36 sm:h-48 object-contain rounded-xl mb-3 sm:mb-4 transition-all duration-500 bg-gray-800"
           />
           <div className="absolute top-2 right-2 bg-purple-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
-            {dynamicCategories[product.category_id]?.name || product.category_name || `Category ${product.category_id}`}
+            {dynamicCategories[product.category_id]?.name ||
+              product.category_name ||
+              `Category ${product.category_id}`}
           </div>
         </div>
 
@@ -214,7 +235,8 @@ export default function Home() {
 
           {product.size && (
             <p className="text-xs font-medium text-gray-300 mb-2">
-              {t("size")}: <span className="text-cyan-400 uppercase">{product.size}</span>
+              {t("size")}:{" "}
+              <span className="text-cyan-400 uppercase">{product.size}</span>
             </p>
           )}
 
@@ -238,10 +260,15 @@ export default function Home() {
 
   const applyFilters = (products) => {
     return products.filter((p) => {
-      const sizeMatch = filterSize ? p.size?.toLowerCase() === filterSize.toLowerCase() : true;
-      const categoryMatch = filterCategory ? p.category_id === filterCategory : true;
+      const sizeMatch = filterSize
+        ? p.size?.toLowerCase() === filterSize.toLowerCase()
+        : true;
+      const categoryMatch = filterCategory
+        ? p.category_id === filterCategory
+        : true;
       const searchMatch = filterSearch
-        ? p.name?.toLowerCase().includes(filterSearch.toLowerCase()) || p.description?.toLowerCase().includes(filterSearch.toLowerCase())
+        ? p.name?.toLowerCase().includes(filterSearch.toLowerCase()) ||
+          p.description?.toLowerCase().includes(filterSearch.toLowerCase())
         : true;
       return sizeMatch && categoryMatch && searchMatch;
     });
@@ -254,7 +281,9 @@ export default function Home() {
       return (
         <section className="mb-16">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-4 text-glow">{t("special_offers")}</h2>
+            <h2 className="text-3xl font-bold text-white mb-4 text-glow">
+              {t("special_offers")}
+            </h2>
             <p className="text-gray-300">No offers available</p>
           </div>
         </section>
@@ -267,10 +296,19 @@ export default function Home() {
     const doubled = [...products, ...products];
 
     return (
-      <section id="category-4" key="offer" ref={offerSectionRef} className="mb-16">
+      <section
+        id="category-4"
+        key="offer"
+        ref={offerSectionRef}
+        className="mb-16"
+      >
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-4 text-glow">{t("special_offers")}</h2>
-          <p className="text-gray-300">{products.length} {t("offers_available")}</p>
+          <h2 className="text-3xl font-bold text-white mb-4 text-glow">
+            {t("special_offers")}
+          </h2>
+          <p className="text-gray-300">
+            {products.length} {t("offers_available")}
+          </p>
         </div>
 
         <div
@@ -282,8 +320,14 @@ export default function Home() {
           }}
         >
           {doubled.map((product, idx) => (
-            <div className="w-56 sm:w-64 flex-shrink-0" key={`${product.id}_${idx}`}>
-              <ProductCard product={product} onClick={() => setSelectedProduct(product)} />
+            <div
+              className="w-56 sm:w-64 flex-shrink-0"
+              key={`${product.id}_${idx}`}
+            >
+              <ProductCard
+                product={product}
+                onClick={() => setSelectedProduct(product)}
+              />
             </div>
           ))}
         </div>
@@ -296,40 +340,108 @@ export default function Home() {
     );
   };
 
-  // Filters section
+  // Filters section (✨ updated with fancy dropdowns ✨)
   const renderFiltersSection = () => (
-    <section className="mb-16 flex flex-col md:flex-row justify-center gap-4 items-center">
-      <input
-        type="text"
-        placeholder="Search products..."
-        value={filterSearch}
-        onChange={(e) => setFilterSearch(e.target.value)}
-        className="bg-gray-800 text-white rounded-full px-4 py-2 w-full md:w-64 focus:outline-none placeholder-gray-400"
-      />
+    <section className="mb-16 flex flex-col md:flex-row justify-center gap-4 items-center bg-gray-900 p-4 rounded-2xl shadow-md">
+      <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto items-center">
+        {/* Search input */}
+        <div className="relative w-full md:w-64">
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={filterSearch}
+            onChange={(e) => setFilterSearch(e.target.value)}
+            className="bg-gray-800 text-white rounded-full px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400 transition-all"
+          />
+          <span className="absolute right-3 top-2.5 text-gray-400">🔍</span>
+        </div>
 
-      <select
-        value={filterSize}
-        onChange={(e) => setFilterSize(e.target.value)}
-        className="bg-gray-800 text-white rounded-full px-4 py-2 w-full md:w-48 focus:outline-none"
-      >
-        <option value="">All Sizes</option>
-        {[...new Set(allProducts.map((p) => p.size).filter(Boolean))].map((size) => (
-          <option key={size} value={size}>{size}</option>
-        ))}
-      </select>
+        {/* Fancy Size Dropdown */}
+        <div className="relative w-full md:w-48" ref={sizeDropdownRef}>
+          <button
+            className="bg-gray-800 text-white rounded-full px-4 py-2 w-full flex justify-between items-center hover:ring-2 hover:ring-cyan-400 transition-all"
+            onClick={() => setShowSizeDropdown(!showSizeDropdown)}
+          >
+            {filterSize || "All Sizes"}
+            <ChevronRight
+              className={`ml-2 transition-transform ${
+                showSizeDropdown ? "rotate-90" : ""
+              }`}
+            />
+          </button>
+          {showSizeDropdown && (
+            <div className="absolute mt-2 w-full bg-gray-900 text-white rounded-xl shadow-lg z-20 max-h-48 overflow-y-auto">
+              <div
+                className="px-4 py-2 hover:bg-cyan-600 cursor-pointer rounded-t-xl"
+                onClick={() => {
+                  setFilterSize("");
+                  setShowSizeDropdown(false);
+                }}
+              >
+                All Sizes
+              </div>
+              {[...new Set(allProducts.map((p) => p.size).filter(Boolean))].map(
+                (size) => (
+                  <div
+                    key={size}
+                    className="px-4 py-2 hover:bg-cyan-600 cursor-pointer"
+                    onClick={() => {
+                      setFilterSize(size);
+                      setShowSizeDropdown(false);
+                    }}
+                  >
+                    {size}
+                  </div>
+                )
+              )}
+            </div>
+          )}
+        </div>
 
-      <select
-        value={filterCategory || ""}
-        onChange={(e) => setFilterCategory(Number(e.target.value) || null)}
-        className="bg-gray-800 text-white rounded-full px-4 py-2 w-full md:w-48 focus:outline-none"
-      >
-        <option value="">All Categories</option>
-        {Object.entries(dynamicCategories)
-          .filter(([id]) => Number(id) !== 4)
-          .map(([id, cat]) => (
-            <option key={id} value={id}>{cat.name}</option>
-          ))}
-      </select>
+        {/* Fancy Category Dropdown */}
+        <div className="relative w-full md:w-48" ref={categoryDropdownRef}>
+          <button
+            className="bg-gray-800 text-white rounded-full px-4 py-2 w-full flex justify-between items-center hover:ring-2 hover:ring-cyan-400 transition-all"
+            onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+          >
+            {filterCategory
+              ? dynamicCategories[filterCategory]?.name
+              : "All Categories"}
+            <ChevronRight
+              className={`ml-2 transition-transform ${
+                showCategoryDropdown ? "rotate-90" : ""
+              }`}
+            />
+          </button>
+          {showCategoryDropdown && (
+            <div className="absolute mt-2 w-full bg-gray-900 text-white rounded-xl shadow-lg z-20 max-h-48 overflow-y-auto">
+              <div
+                className="px-4 py-2 hover:bg-cyan-600 cursor-pointer rounded-t-xl"
+                onClick={() => {
+                  setFilterCategory(null);
+                  setShowCategoryDropdown(false);
+                }}
+              >
+                All Categories
+              </div>
+              {Object.entries(dynamicCategories)
+                .filter(([id]) => Number(id) !== 4)
+                .map(([id, cat]) => (
+                  <div
+                    key={id}
+                    className="px-4 py-2 hover:bg-cyan-600 cursor-pointer"
+                    onClick={() => {
+                      setFilterCategory(Number(id));
+                      setShowCategoryDropdown(false);
+                    }}
+                  >
+                    {cat.name}
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Clear Filters Button */}
       <button
@@ -338,9 +450,9 @@ export default function Home() {
           setFilterSize("");
           setFilterCategory(null);
         }}
-        className="bg-gray-700 text-white rounded-full px-4 py-2 w-full md:w-auto hover:bg-gray-600 transition-colors"
+        className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full px-6 py-2 w-full md:w-auto hover:opacity-90 transition-colors font-semibold shadow-md radius-50"
       >
-        Clear Filters
+        Clear Filters ✨
       </button>
     </section>
   );
@@ -358,7 +470,11 @@ export default function Home() {
     const items = paginate(products, page, PRODUCTS_PER_PAGE);
 
     return (
-      <section id={`category-${categoryId}`} key={categoryId} className="mb-16">
+      <section
+        id={`category-${categoryId}`}
+        key={categoryId}
+        className="mb-16"
+      >
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-4 text-glow">
             {dynamicCategories[categoryId]?.name || `Category ${categoryId}`}
@@ -368,14 +484,20 @@ export default function Home() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {items.map((product) => (
-            <ProductCard key={product.id} product={product} onClick={() => setSelectedProduct(product)} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              onClick={() => setSelectedProduct(product)}
+            />
           ))}
         </div>
 
         {pages > 1 && (
           <div className="flex flex-col sm:flex-row justify-center items-center mt-8 gap-4">
             <Button
-              onClick={() => handleCategoryPage(categoryId, Math.max(page - 1, 1))}
+              onClick={() =>
+                handleCategoryPage(categoryId, Math.max(page - 1, 1))
+              }
               disabled={page === 1}
               className="bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-full px-6 py-2 disabled:bg-gray-700 disabled:text-gray-400"
             >
@@ -387,7 +509,9 @@ export default function Home() {
             </span>
 
             <Button
-              onClick={() => handleCategoryPage(categoryId, Math.min(page + 1, pages))}
+              onClick={() =>
+                handleCategoryPage(categoryId, Math.min(page + 1, pages))
+              }
               disabled={page === pages}
               className="bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-full px-6 py-2 disabled:bg-gray-700 disabled:text-gray-400"
             >
@@ -425,7 +549,11 @@ export default function Home() {
             <section>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {featuredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} onClick={() => setSelectedProduct(product)} />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onClick={() => setSelectedProduct(product)}
+                  />
                 ))}
               </div>
             </section>
@@ -438,7 +566,9 @@ export default function Home() {
                     key={cat.id}
                     className="flex flex-col items-center space-y-1"
                     onClick={() => {
-                      const section = document.getElementById(`category-${cat.id}`);
+                      const section = document.getElementById(
+                        `category-${cat.id}`
+                      );
                       if (section) {
                         section.scrollIntoView({ behavior: "smooth" });
                       }
@@ -453,7 +583,9 @@ export default function Home() {
                       />
                     </div>
                     {/* Label under image */}
-                    <span className="text-sm font-semibold text-white">{cat.name}</span>
+                    <span className="text-sm font-semibold text-white">
+                      {cat.name}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -482,9 +614,12 @@ export default function Home() {
         )}
 
         <section className="text-center mt-4">
-          <h2 className="text-4xl font-bold text-white mb-16 text-glow">{t("why_choose")}</h2>
+          <h2 className="text-4xl font-bold text-white mb-16 text-glow">
+            {t("why_choose")}
+          </h2>
           <div className="grid md:grid-cols-3 gap-8">
-            {[{
+            {[
+              {
                 icon: Shield,
                 title: t("advanced_protection"),
                 description: t("desc1"),
@@ -500,12 +635,19 @@ export default function Home() {
                 description: t("desc3"),
               },
             ].map((feature, index) => (
-              <div key={index} className="glass-effect p-8 rounded-2xl glow-effect group hover:scale-105 transition-all">
+              <div
+                key={index}
+                className="glass-effect p-8 rounded-2xl glow-effect group hover:scale-105 transition-all"
+              >
                 <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:animate-pulse">
                   <feature.icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
-                <p className="text-gray-300 leading-relaxed">{feature.description}</p>
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-300 leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
             ))}
           </div>
@@ -516,7 +658,11 @@ export default function Home() {
       </div>
 
       {selectedProduct && (
-        <ProductModal product={selectedProduct} isOpen={!!selectedProduct} onClose={() => setSelectedProduct(null)} />
+        <ProductModal
+          product={selectedProduct}
+          isOpen={!!selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
       )}
 
       <WhatsAppButton />

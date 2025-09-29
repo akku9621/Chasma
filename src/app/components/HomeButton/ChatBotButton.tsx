@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef, ReactNode } from "react";
-import { Bot, X } from "lucide-react";
+import { X } from "lucide-react"; // Removed Bot import since we use image now
 import { useTranslation } from "react-i18next"; // ✅ Import i18n hook
 
 // ✅ Use i18n keys for questions and answers
@@ -85,9 +85,13 @@ export default function ChatBotButton() {
       {/* Floating Button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 right-4 z-50 bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-full shadow-lg transition-all"
+        className="fixed bottom-4 right-4 z-50 w-16 h-16 p-0 rounded-full shadow-lg overflow-hidden transition-all hover:scale-105"
       >
-        <Bot className="w-6 h-6" />
+        <img 
+          src="/pictures/chatBot.png"  // replace with your image in public folder
+          alt="Chat Bot"
+          className="w-full h-full object-cover"
+        />
       </button>
 
       {/* Side Popup */}
