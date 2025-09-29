@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, ReactNode } from "react";
 import { Bot, X } from "lucide-react";
 
 const FAQS: Record<string, string> = {
@@ -28,7 +28,7 @@ const FAQS: Record<string, string> = {
 
 export default function ChatBotButton() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<{ from: "user" | "bot"; text: string | JSX.Element }[]>([]);
+  const [messages, setMessages] = useState<{ from: "user" | "bot"; text: string | ReactNode }[]>([]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +57,7 @@ export default function ChatBotButton() {
 
     setMessages((prev) => [...prev, { from: "user", text: userMessage }]);
 
-    let reply: string | JSX.Element = fallbackReply;
+    let reply: string | ReactNode = fallbackReply;
     if (fromSuggestion) {
       const lower = userMessage.toLowerCase();
       for (const q in FAQS) {
