@@ -18,9 +18,12 @@ export default function UploadProductPage() {
   const [category, setCategory] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoURL, setPhotoURL] = useState<string | null>(null); // 👈 for preview
+  const [images, setImages] = useState<File[]>([]); // 👈 new multi-images state
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]); // 👈 new previews array
   const [loading, setLoading] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement>(null); // 👈 ref for file input
+  const fileInputRef = useRef<HTMLInputElement>(null); // 👈 ref for single file input
+  const multiFileInputRef = useRef<HTMLInputElement>(null); // 👈 ref for multi file input
 
   // ✅ Load categories from API instead of hardcoding
   useEffect(() => {
@@ -50,6 +53,18 @@ export default function UploadProductPage() {
     }
   };
 
+  const handleMultipleImagesUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const fileArray = Array.from(files);
+      setImages(fileArray);
+
+      // 👈 create previews
+      const previewArray = fileArray.map((file) => URL.createObjectURL(file));
+      setImagePreviews(previewArray);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -76,6 +91,9 @@ export default function UploadProductPage() {
       formData.append("language", "english");
       formData.append("image", photo); // <- minimal change: was 'photo', now 'image'
 
+      // 👈 append multiple images
+      images.forEach((img) => formData.append("images", img));
+
       const res = await fetch(API.PRODUCTS.CREATE, {
         method: "POST",
         headers: {
@@ -96,9 +114,13 @@ export default function UploadProductPage() {
         setSize("");
         setCategory("");
         setPhoto(null);
+        setImages([]);
         if (photoURL) URL.revokeObjectURL(photoURL); // 👈 revoke object URL
         setPhotoURL(null); // 👈 clear preview
-        if (fileInputRef.current) fileInputRef.current.value = ""; // 👈 reset file input
+        imagePreviews.forEach((url) => URL.revokeObjectURL(url)); // 👈 revoke multiple image previews
+        setImagePreviews([]);
+        if (fileInputRef.current) fileInputRef.current.value = ""; // 👈 reset single file input
+        if (multiFileInputRef.current) multiFileInputRef.current.value = ""; // 👈 reset multi file input
       }
     } catch (err) {
       console.error(err);
@@ -184,9 +206,9 @@ export default function UploadProductPage() {
           ></textarea>
         </div>
 
-        {/* Photo */}
+        {/* Single Photo */}
         <div className="col-12">
-          <label className="form-label">Photo *</label>
+          <label className="form-label">Try On Photo *</label>
           <input
             ref={fileInputRef} // 👈 attach ref here
             type="file"
@@ -203,6 +225,31 @@ export default function UploadProductPage() {
               style={{ maxHeight: "200px" }}
             />
           )}
+        </div>
+
+        {/* Multiple Images */}
+        <div className="col-12">
+          <label className="form-label">Image Gallery *</label>
+          <input
+            ref={multiFileInputRef} // 👈 attach ref here
+            type="file"
+            className="form-control"
+            accept="image/*"
+            multiple
+            onChange={handleMultipleImagesUpload}
+            required
+          />
+          <div className="d-flex flex-wrap mt-2">
+            {imagePreviews.map((url, idx) => (
+              <img
+                key={idx}
+                src={url}
+                alt={`Preview ${idx}`}
+                className="me-2 mb-2 rounded"
+                style={{ maxHeight: "100px" }}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Submit */}
