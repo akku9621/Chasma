@@ -1,9 +1,7 @@
 "use client";
 import React from "react";
-import { MessageCircle } from "lucide-react";
 
 export default function WhatsAppButton() {
-  // ✅ Remove "+" sign, keep only digits
   const phoneNumber = "918299562428"; 
   const message = "Hello! I want to know more about your products."; 
 
@@ -14,9 +12,13 @@ export default function WhatsAppButton() {
   return (
     <button
       onClick={handleClick}
-      className="fixed bottom-24 right-4 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all"
+      className="fixed bottom-24 right-4 z-50 w-16 h-16 p-0 rounded-full shadow-lg overflow-hidden transition-all hover:scale-105"
     >
-      <MessageCircle className="w-6 h-6" />
+      <img 
+        src="/pictures/whatsappPhoto.png"  // replace with your actual image name
+        alt="WhatsApp" 
+        className="w-full h-full object-cover"
+      />
     </button>
   );
 }
