@@ -10,6 +10,8 @@ import Carousel from "../app/components/video/page";
 
 import { API } from "../services/api";
 import { useTranslation } from "react-i18next";
+import WhatsAppButton from "./components/HomeButton/WhatsAppButton";
+import ChatBotButton from "./components/HomeButton/ChatBotButton";
 
 /*
   CATEGORY_MAP: local category map used instead of fetching categories.
@@ -516,6 +518,9 @@ export default function Home() {
       {selectedProduct && (
         <ProductModal product={selectedProduct} isOpen={!!selectedProduct} onClose={() => setSelectedProduct(null)} />
       )}
+
+      <WhatsAppButton />
+      <ChatBotButton />
     </div>
   );
 }
