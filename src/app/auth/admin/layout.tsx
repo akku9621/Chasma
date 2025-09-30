@@ -13,6 +13,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [checking, setChecking] = useState(true);
   const [username, setUsername] = useState<string | null>(null);
 
+  // ✅ Client-side year to avoid hydration mismatch
+  const [year, setYear] = useState<number | null>(null);
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
+
   useEffect(() => {
     const isAdmin = Cookies.get("isAdmin");
     const token = Cookies.get("token");
@@ -144,7 +150,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <main className="p-4">{children}</main>
 
         <footer className="admin-footer">
-          © {new Date().getFullYear()} Jyoti Netra Seva
+          © {year || ""} JYOTI NETRA SEVA & JYOTI CHASHMA SAGAR
         </footer>
       </div>
     </div>

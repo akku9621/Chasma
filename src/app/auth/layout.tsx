@@ -8,7 +8,7 @@ export const metadata = {
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body suppressHydrationWarning>
         {/* ✅ Wrap with AppProviders for i18n + context */}
         <AppProviders>{children}</AppProviders>
       </body>
