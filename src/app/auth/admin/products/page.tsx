@@ -249,10 +249,10 @@ export default function ProductsPage() {
           <table className="table table-bordered align-middle">
             <thead className="table-light">
               <tr>
-                <th>#</th> {/* ✅ Serial Number column */}
+                <th>#</th>
                 <th>ID</th>
                 <th>Photo</th>
-                <th>Images</th> {/* ✅ New multiple images column */}
+                <th>Images</th>
                 <th>Name</th>
                 <th>Price</th>
                 <th>Size</th>
@@ -264,7 +264,7 @@ export default function ProductsPage() {
             <tbody>
               {products.map((p, index) => (
                 <tr key={p.id}>
-                  <td>{(page - 1) * size + index + 1}</td> {/* ✅ Serial No. */}
+                  <td>{(page - 1) * size + index + 1}</td>
                   <td>{p.id}</td>
                   <td>
                     {p.image_path ? (
