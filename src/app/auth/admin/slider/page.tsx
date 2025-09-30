@@ -82,7 +82,11 @@ export default function CarouselPage() {
       const fd = new FormData();
       fd.append("name", formData.name || "");
       if (formData.description) fd.append("description", formData.description);
-      if (formData.image instanceof File) fd.append("image", formData.image);
+
+      // ✅ Minimal fix: only append if it's a File
+      if (formData.image && formData.image instanceof File) {
+        fd.append("image", formData.image);
+      }
 
       const res = await fetch(API.CAROUSELS.CREATE, {
         method: "POST",
@@ -113,38 +117,22 @@ export default function CarouselPage() {
     if (!token || !editingCarousel) return;
 
     try {
-      let res;
+      const fd = new FormData();
 
-      // ✅ If a new image file is selected, use FormData
-      if (formData.image instanceof File) {
-        const fd = new FormData();
-        fd.append("name", formData.name || editingCarousel.name);
-        fd.append("description", formData.description || editingCarousel.description);
-        fd.append("image", formData.image); // send new image
+      // ✅ Always include required fields (fallback to old values if not changed)
+      fd.append("name", formData.name ?? editingCarousel.name);
+      fd.append("description", formData.description ?? editingCarousel.description ?? "");
 
-        res = await fetch(API.CAROUSELS.UPDATE(String(editingCarousel.id)), {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` }, // ✅ no Content-Type for FormData
-          body: fd,
-        });
-      } else {
-        // ✅ No new file, send JSON with existing image
-        const payload = {
-          name: formData.name || editingCarousel.name,
-          description: formData.description || editingCarousel.description,
-          image_path: editingCarousel.image_path,
-          image_folder: editingCarousel.image_folder || "",
-        };
-
-        res = await fetch(API.CAROUSELS.UPDATE(String(editingCarousel.id)), {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        });
+      // ✅ Minimal fix: only append if it's a File
+      if (formData.image && formData.image instanceof File) {
+        fd.append("image", formData.image);
       }
+
+      const res = await fetch(API.CAROUSELS.UPDATE(String(editingCarousel.id)), {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }, // ✅ no Content-Type for FormData
+        body: fd,
+      });
 
       const result = await res.json();
       if (!res.ok) {
