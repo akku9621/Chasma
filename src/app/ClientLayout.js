@@ -100,8 +100,12 @@ export default function ClientLayout({ children }) {
                 />
               </div>
               {/* App name font size: text-lg for mobile/tablet, text-xl for desktop */}
-              <span className="text-lg md:text-xl font-bold text-white text-glow tracking-wider whitespace-nowrap overflow-hidden text-ellipsis">
-                {t("jyoti_chashma")}
+              <span className="inline-flex items-center max-h-[50px] overflow-hidden">
+                <img
+                  src="/pictures/name.png"
+                  alt="Jyoti Chashma"
+                  className="max-h-[40px] w-auto object-contain drop-shadow-[0_0_10px_rgba(0,255,128,0.8)]"
+                />
               </span>
             </Link>
 
