@@ -194,6 +194,33 @@ export default function ClientLayout({ children }) {
               </div>
             </div>
 
+            {/* Rating */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-6 text-glow">
+                {t("rate_us")}
+              </h3>
+              <div className="space-y-4">
+                <div className="flex flex-col items-start space-y-3 mt-6">
+                  <img
+                    src="/pictures/scanMe.png"
+                    alt="Scan QR to Rate Us"
+                    className="w-28 h-28 object-contain rounded-lg border border-cyan-400 shadow-md"
+                  />
+                  <p className="text-gray-300 text-sm">
+                    {t("scan_or_click")}
+                  </p>
+                  <a
+                    href="https://g.page/r/CX5nOPZQJhbZEBE/review"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all !no-underline text-center glow-effect"
+                  >
+                    ⭐ {t("rating")}
+                  </a>
+                </div>
+              </div>
+            </div>
+
             {/* Quick Links */}
             <div>
               <h3 className="text-lg font-semibold text-white mb-6 text-glow">
@@ -230,6 +257,7 @@ export default function ClientLayout({ children }) {
                 </div>
               </div>
             </div>
+
           </div>
 
           {/* Bottom Bar */}

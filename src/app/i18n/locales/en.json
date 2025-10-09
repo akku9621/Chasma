@@ -122,5 +122,8 @@
   "answer_do_you_accept_digital_payments": "Yes, we accept UPI, debit/credit cards, and net banking.",
   "answer_do_you_provide_discounts": "Yes, we have seasonal discounts and special offers on select brands.",
   "answer_do_you_have_corporate_tie_ups": "Yes, we offer bulk/corporate packages for companies.",
-  "answer_can_i_book_an_appointment": "Yes, you can call or WhatsApp us to book an eye test appointment."
+  "answer_can_i_book_an_appointment": "Yes, you can call or WhatsApp us to book an eye test appointment.",
+  "rate_us": "Rate Us",
+  "scan_or_click": "Scan us or click the button to rate",
+  "rating": "Rating"
 }
